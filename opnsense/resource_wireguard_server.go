@@ -2,13 +2,14 @@ package opnsense
 
 import (
 	"fmt"
+	"log"
+	"strconv"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
 	"github.com/satori/go.uuid"
-	"log"
-	"strconv"
-	"strings"
 )
 
 func resourceWireGuardServer() *schema.Resource {
@@ -17,6 +18,10 @@ func resourceWireGuardServer() *schema.Resource {
 		Read:   resourceWireGuardServerRead,
 		Update: resourceWireGuardServerUpdate,
 		Delete: resourceWireGuardServerDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"enabled": {
@@ -38,12 +43,19 @@ func resourceWireGuardServer() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Public key of the server",
 				Computed:    true,
+				Sensitive:   true,
 			},
 			"port": {
 				Type:         schema.TypeInt,
 				Description:  "Listening port for WireGuard server",
-				Optional:     true,
+				Required:     true,
 				ValidateFunc: validation.IntBetween(10, 65535),
+			},
+			"mtu": {
+				Type:         schema.TypeInt,
+				Description:  "Set the interface MTU for this interface. Leaving empty uses the MTU from main interface which is fine for most setups.",
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 16384),
 			},
 			"disable_routes": {
 				Type:        schema.TypeBool,
@@ -96,7 +108,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[TRACE] Fetching server configuration from OPNsense")
-	server, err := c.WireGuardGetServer(uuid)
+	server, err := c.WireGuardServerGet(uuid)
 	if err != nil {
 		log.Printf("[ERROR] Failed to fetch uuid: %s", uuid)
 		return err
@@ -116,6 +128,15 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	d.Set("port", port)
+
+	if server.MTU != "" {
+		mtu, err := strconv.Atoi(server.MTU)
+		if err != nil {
+			log.Printf("[ERROR] Failed to convert MTU to int: %s", server.MTU)
+			return err
+		}
+		d.Set("mtu", mtu)
+	}
 
 	// TODO: Handle this map[string]interface
 	// d.Set("tunnel_address", server.TunnelAddress)
@@ -147,12 +168,12 @@ func resourceWireGuardServerCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	err = c.WireGuardAddServer(server)
+	err = c.WireGuardServerAdd(server)
 	if err != nil {
 		return err
 	}
 
-	uuids, err := c.WireGuardFindServerUUIDByName(server.Name)
+	uuids, err := c.WireGuardServerFindUUIDByName(server.Name)
 	if err != nil {
 		return err
 	}
@@ -186,7 +207,7 @@ func resourceWireGuardServerUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	_, err = c.WireGuardSetServer(uuid, server)
+	_, err = c.WireGuardServerSet(uuid, server)
 	if err != nil {
 		return err
 	}
@@ -205,7 +226,7 @@ func resourceWireGuardServerDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	_, err = c.WireGuardDeleteServer(uuid)
+	_, err = c.WireGuardServerDelete(uuid)
 	if err != nil {
 		return err
 	}
@@ -230,6 +251,9 @@ func prepareServerConfiguration(d *schema.ResourceData, server *opnsense.WireGua
 		server.DisableRoutes = "0"
 	}
 	server.Port = strconv.Itoa(d.Get("port").(int))
+	if d.Get("MTU") != nil {
+		server.MTU = strconv.Itoa(d.Get("MTU").(int))
+	}
 
 	tunnelAddressList := d.Get("tunnel_address").(*schema.Set).List()
 	tunnelAddressStringList := make([]string, len(tunnelAddressList))

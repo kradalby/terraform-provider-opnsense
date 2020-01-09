@@ -1,13 +1,14 @@
 package opnsense
 
 import (
+	"log"
+	"strconv"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
 	"github.com/satori/go.uuid"
-	"log"
-	"strconv"
-	"strings"
 )
 
 func resourceWireGuardClient() *schema.Resource {
@@ -16,6 +17,10 @@ func resourceWireGuardClient() *schema.Resource {
 		Read:   resourceWireGuardClientRead,
 		Update: resourceWireGuardClientUpdate,
 		Delete: resourceWireGuardClientDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// "uuid": {
@@ -86,8 +91,13 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[TRACE] Fetching client configuration from OPNsense")
-	client, err := c.WireGuardGetClient(uuid)
+	client, err := c.WireGuardClientGet(uuid)
 	if err != nil {
+		if err.Error() == "found empty array, most likely 404" {
+			d.SetId("")
+			return nil
+		}
+		log.Printf("ERROR: \n%#v", err)
 		log.Printf("[ERROR] Failed to fetch uuid: %s", uuid)
 		return err
 	}
@@ -103,12 +113,14 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 	tunnelAddressList := opnsense.ListSelectedValues(client.TunnelAddress)
 	d.Set("tunnel_address", tunnelAddressList)
 
-	serverPort, err := strconv.Atoi(client.ServerPort)
-	if err != nil {
-		log.Printf("[ERROR] Failed to convert ServerPort to int: %s", client.ServerPort)
-		return err
+	if client.ServerPort != "" {
+		serverPort, err := strconv.Atoi(client.ServerPort)
+		if err != nil {
+			log.Printf("[ERROR] Failed to convert ServerPort to int: %s", client.ServerPort)
+			return err
+		}
+		d.Set("endpoint_port", serverPort)
 	}
-	d.Set("endpoint_port", serverPort)
 
 	keepAlive, err := strconv.Atoi(client.KeepAlive)
 	if err != nil {
@@ -130,7 +142,7 @@ func resourceWireGuardClientCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	uuid, err := c.WireGuardAddClient(client)
+	uuid, err := c.WireGuardClientAdd(client)
 	if err != nil {
 		return err
 	}
@@ -156,7 +168,7 @@ func resourceWireGuardClientUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	_, err = c.WireGuardSetClient(uuid, client)
+	_, err = c.WireGuardClientSet(uuid, client)
 	if err != nil {
 		return err
 	}
@@ -175,7 +187,7 @@ func resourceWireGuardClientDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	_, err = c.WireGuardDeleteClient(uuid)
+	_, err = c.WireGuardClientDelete(uuid)
 	if err != nil {
 		return err
 	}
@@ -195,7 +207,12 @@ func prepareClientConfiguration(d *schema.ResourceData, client *opnsense.WireGua
 	client.PubKey = d.Get("public_key").(string)
 	client.Psk = d.Get("shared_key").(string)
 	client.ServerAddress = d.Get("endpoint_address").(string)
-	client.ServerPort = strconv.Itoa(d.Get("endpoint_port").(int))
+
+	if endpointPort := d.Get("endpoint_port").(int); endpointPort != 0 {
+		log.Printf("[TRACE] ENDPOINT_PORT: %d", endpointPort)
+		client.ServerPort = strconv.Itoa(endpointPort)
+	}
+
 	client.KeepAlive = strconv.Itoa(d.Get("keep_alive").(int))
 
 	tunnelAddressList := d.Get("tunnel_address").(*schema.Set).List()
