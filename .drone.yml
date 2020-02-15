@@ -1,6 +1,6 @@
 pipeline:
   build:
-      image: golang:1.12.1-stretch
+      image: golang:1.13.8-stretch
       commands:
           - go get github.com/mitchellh/gox
           - gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
