@@ -22,12 +22,11 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hashicorp/hcl/v2 v2.2.0 // indirect
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80 // indirect
 	github.com/hashicorp/hil v0.0.0-20190212132231-97b3a9cdfa93 // indirect
 	github.com/hashicorp/logutils v0.0.0-20150609070431-0dc08b1671f3 // indirect
 	github.com/hashicorp/serf v0.8.2-0.20171022020050-c20a0b1b1ea9 // indirect
-	github.com/hashicorp/terraform v0.12.18
+	github.com/hashicorp/terraform v0.12.20
 	github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136 // indirect
 	github.com/hashicorp/yamux v0.0.0-20190923154419-df201c70410d // indirect
 	github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a // indirect
@@ -50,7 +49,6 @@ require (
 	github.com/terraform-providers/terraform-provider-tls v1.2.0 // indirect
 	github.com/ulikunitz/xz v0.5.6 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
-	github.com/zclconf/go-cty v1.2.0 // indirect
 	go.opencensus.io v0.22.2 // indirect
 	golang.org/x/crypto v0.0.0-20191219195013-becbf705a915 // indirect
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
