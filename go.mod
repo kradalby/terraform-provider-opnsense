@@ -33,7 +33,7 @@ require (
 	github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/kr/pty v1.1.4 // indirect
-	github.com/kradalby/opnsense-go v0.0.0-20200109171527-24fe4d2794f4
+	github.com/kradalby/opnsense-go v0.0.0-20200215180310-7a3f75984645
 	github.com/masterzen/azure-sdk-for-go v0.0.0-20161014135628-ee4f0065d00c // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
 	github.com/miekg/dns v1.0.14 // indirect
