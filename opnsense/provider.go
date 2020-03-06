@@ -1,9 +1,9 @@
 package opnsense
 
 import (
+	"github.com/cdeconinck/opnsense-go/opnsense"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kradalby/opnsense-go/opnsense"
 	"log"
 )
 
@@ -37,10 +37,16 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"opnsense_wireguard_client": resourceWireGuardClient(),
-			"opnsense_wireguard_server": resourceWireGuardServer(),
-			"opnsense_firewall_alias":   resourceFirewallAlias(),
+			"opnsense_wireguard_client":    resourceWireGuardClient(),
+			"opnsense_wireguard_server":    resourceWireGuardServer(),
+			"opnsense_firewall_alias":      resourceFirewallAlias(),
+			"opnsense_firewall_alias_push": resourceFirewallAliasPush(),
 		},
+
+		DataSourcesMap: map[string]*schema.Resource{
+			"opnsense_firewall_alias": dataFirewallAlias(),
+		},
+
 		ConfigureFunc: providerConfigure,
 	}
 }
