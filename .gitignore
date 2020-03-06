@@ -27,6 +27,7 @@ website/node_modules
 *.iml
 
 website/vendor
+terraform-provider-opnsense
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate

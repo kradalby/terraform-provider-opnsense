@@ -60,3 +60,5 @@ require (
 	google.golang.org/genproto v0.0.0-20191223191004-3caeed10a8bf // indirect
 	google.golang.org/grpc v1.26.0 // indirect
 )
+
+replace github.com/kradalby/opnsense-go => github.com/cdeconinck/opnsense-go v0.0.0-20200306102544-9ac32c7b9b08

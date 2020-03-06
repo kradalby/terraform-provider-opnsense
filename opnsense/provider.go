@@ -39,6 +39,7 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"opnsense_wireguard_client": resourceWireGuardClient(),
 			"opnsense_wireguard_server": resourceWireGuardServer(),
+			"opnsense_firewall_alias":   resourceFirewallAlias(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
