@@ -1,4 +1,4 @@
-module github.com/kradalby/terraform-provider-opnsense
+module github.com/cdeconinck/terraform-provider-opnsense
 
 go 1.12
 
@@ -9,10 +9,18 @@ require (
 	github.com/aws/aws-sdk-go v1.26.8 // indirect
 	github.com/beevik/etree v0.0.0-20171015221209-af219c0c7ea1 // indirect
 	github.com/bmatcuk/doublestar v1.2.2 // indirect
+	github.com/cdeconinck/opnsense-go v0.0.0-20200215180310-7a3f75984645
 	github.com/chzyer/logex v1.1.11-0.20160617073814-96a4d311aa9b // indirect
 	github.com/coreos/bbolt v1.3.1-coreos.1 // indirect
+	github.com/digitalocean/go-netbox v0.0.0-20200211112514-6bc857cb89fd
 	github.com/go-ini/ini v1.51.0 // indirect
+	github.com/go-openapi/errors v0.19.3 // indirect
+	github.com/go-openapi/runtime v0.19.11 // indirect
+	github.com/go-openapi/strfmt v0.19.4 // indirect
+	github.com/go-openapi/swag v0.19.7 // indirect
+	github.com/go-openapi/validate v0.19.6 // indirect
 	github.com/golang/groupcache v0.0.0-20191027212112-611e8accdfc9 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/googleapis/gax-go v0.0.0-20161107002406-da06d194a00e // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/hashicorp/atlas-go v0.0.0-20161107204910-1792bd8de119 // indirect
@@ -24,19 +32,20 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80 // indirect
 	github.com/hashicorp/hil v0.0.0-20190212132231-97b3a9cdfa93 // indirect
-	github.com/hashicorp/logutils v0.0.0-20150609070431-0dc08b1671f3 // indirect
 	github.com/hashicorp/serf v0.8.2-0.20171022020050-c20a0b1b1ea9 // indirect
 	github.com/hashicorp/terraform v0.12.21
+	github.com/hashicorp/terraform-plugin-sdk v1.7.0
 	github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136 // indirect
 	github.com/hashicorp/yamux v0.0.0-20190923154419-df201c70410d // indirect
 	github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
-	github.com/kr/pty v1.1.4 // indirect
-	github.com/kradalby/opnsense-go v0.0.0-20200215180310-7a3f75984645
 	github.com/masterzen/azure-sdk-for-go v0.0.0-20161014135628-ee4f0065d00c // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
+	github.com/microsoft/azure-devops-go-api/azuredevops v0.0.0-20191230214132-3cd87c562d09
+	github.com/microsoft/terraform-provider-azuredevops v0.1.0
 	github.com/miekg/dns v1.0.14 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
+	github.com/netbox-community/go-netbox v0.0.0-20200211112514-6bc857cb89fd // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/ryanuber/columnize v0.0.0-20161220214920-0fbbb3f0e3fb // indirect
 	github.com/satori/go.uuid v1.2.0
@@ -61,4 +70,4 @@ require (
 	google.golang.org/grpc v1.26.0 // indirect
 )
 
-replace github.com/kradalby/opnsense-go => github.com/cdeconinck/opnsense-go v0.0.0-20200306102544-9ac32c7b9b08
+replace github.com/cdeconinck/opnsense-go => /Users/ced/Documents/Projets/opnsense-go
