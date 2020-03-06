@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/cdeconinck/terraform-provider-opnsense/opnsense"
 	"github.com/hashicorp/terraform/plugin"
-	"github.com/kradalby/terraform-provider-opnsense/opnsense"
 )
 
 func main() {

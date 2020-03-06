@@ -1,8 +1,8 @@
 package opnsense
 
 import (
+	"github.com/cdeconinck/opnsense-go/opnsense"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/kradalby/opnsense-go/opnsense"
 	"github.com/satori/go.uuid"
 	"log"
 )
@@ -68,7 +68,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[TRACE] Fetching client configuration from OPNsense")
-	client, err := c.AliasClientGet(uuid)
+	client, err := c.AliasGet(uuid)
 	if err != nil {
 		// temporary fix for the internal error API when we try to get an unreferenced UIID
 		if err.Error() == "Internal Error status code received" {
@@ -109,14 +109,14 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 func resourceFirewallAliasCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*opnsense.Client)
 
-	client := opnsense.AliasClientSet{}
+	client := opnsense.AliasSet{}
 
 	err := prepareFirewallAliasConfiguration(d, &client)
 	if err != nil {
 		return err
 	}
 
-	uuid, err := c.AliasClientAdd(client)
+	uuid, err := c.AliasAdd(client)
 	if err != nil {
 		return err
 	}
@@ -135,14 +135,14 @@ func resourceFirewallAliasUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	client := opnsense.AliasClientSet{}
+	client := opnsense.AliasSet{}
 
 	err = prepareFirewallAliasConfiguration(d, &client)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.AliasClientUpdate(uuid, client)
+	_, err = c.AliasUpdate(uuid, client)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func resourceFirewallAliasDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	_, err = c.AliasClientDelete(uuid)
+	_, err = c.AliasDelete(uuid)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func resourceFirewallAliasDelete(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func prepareFirewallAliasConfiguration(d *schema.ResourceData, client *opnsense.AliasClientSet) error {
+func prepareFirewallAliasConfiguration(d *schema.ResourceData, client *opnsense.AliasSet) error {
 	if d.Get("enabled").(bool) {
 		client.Enabled = "1"
 	} else {

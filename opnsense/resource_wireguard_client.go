@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cdeconinck/opnsense-go/opnsense"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"github.com/kradalby/opnsense-go/opnsense"
 	"github.com/satori/go.uuid"
 )
 
