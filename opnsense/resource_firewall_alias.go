@@ -1,11 +1,11 @@
 package opnsense
 
 import (
+	//"fmt"
 	"github.com/cdeconinck/opnsense-go/opnsense"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/satori/go.uuid"
 	"log"
-	"strings"
 )
 
 func resourceFirewallAlias() *schema.Resource {
@@ -20,11 +20,11 @@ func resourceFirewallAlias() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			// "uuid": {
-			// 	Type:        schema.TypeString,
-			// 	Description: "UUID assigned to client by OPNsense",
-			// 	Computed:    true,
-			// },
+			"parent": {
+				Type:        schema.TypeString,
+				Description: "Name assigned to the parent alias",
+				Optional:    true,
+			},
 			"enabled": {
 				Type:        schema.TypeBool,
 				Description: "Enable the alias",
@@ -64,7 +64,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[TRACE] Converting ID to UUID")
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
-		log.Printf("[ERROR] Failed to parse ID")
+		log.Printf("[ERROR]resourceFirewallAliasRead -  Failed to parse ID")
 		return err
 	}
 
@@ -84,44 +84,53 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Configuration from OPNsense: \n")
 	log.Printf("[DEBUG] %#v \n", client)
 
-	if client.Enabled == "1" {
-		d.Set("enabled", true)
-	} else {
-		d.Set("enabled", false)
-	}
+	d.Set("enabled", client.Enabled)
 	d.Set("name", client.Name)
 	d.Set("type", client.Type)
 	d.Set("description", client.Description)
-
-	content := make([]string, 0)
-	if client.Content != nil {
-		for _, v := range client.Content {
-			if v.Selected == 1 {
-				content = append(content, v.Value)
-			}
-		}
-	}
-
-	d.Set("content", content)
+	d.Set("content", client.Content)
 
 	return nil
 }
 
 func resourceFirewallAliasCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*opnsense.Client)
-	client := opnsense.AliasSet{}
+	client := opnsense.AliasFormat{}
 
 	err := prepareFirewallAliasConfiguration(d, &client)
 	if err != nil {
 		return err
 	}
 
-	uuid, err := c.AliasAdd(client)
+	// create the alias
+	uuid_created, err := c.AliasAdd(client)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(uuid.String())
+	// add this alias to the parent if set
+	/*parent := d.Get("parent")
+	if parent != nil {
+		parent_uuid, err := uuid.FromString(parent.(string))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Failed to parse ID")
+		}
+
+		parent_alias, err_get := c.AliasGet(parent_uuid)
+		if err_get != nil {
+			return fmt.Errorf("Something went wrong while retrieving parent alias for: %s", err_get)
+		}
+
+		parent_alias.Content = append(parent_alias.Content, client.Name)
+
+		_, err_update := c.AliasUpdate(parent_uuid, *parent_alias)
+
+		if err_update != nil {
+			log.Println(err_update)
+		}
+	}*/
+
+	d.SetId(uuid_created.String())
 	resourceFirewallAliasRead(d, meta)
 
 	return nil
@@ -135,7 +144,7 @@ func resourceFirewallAliasUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	client := opnsense.AliasSet{}
+	client := opnsense.AliasFormat{}
 
 	err = prepareFirewallAliasConfiguration(d, &client)
 	if err != nil {
@@ -171,22 +180,18 @@ func resourceFirewallAliasDelete(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func prepareFirewallAliasConfiguration(d *schema.ResourceData, client *opnsense.AliasSet) error {
-	if d.Get("enabled").(bool) {
-		client.Enabled = "1"
-	} else {
-		client.Enabled = "0"
-	}
+func prepareFirewallAliasConfiguration(d *schema.ResourceData, client *opnsense.AliasFormat) error {
+	client.Enabled = d.Get("enabled").(bool)
 	client.Name = d.Get("name").(string)
 	client.Description = d.Get("description").(string)
 	client.Type = d.Get("type").(string)
-	content_list := d.Get("content").(*schema.Set).List()
 
+	content_list := d.Get("content").(*schema.Set).List()
 	content_list_str := make([]string, len(content_list))
 	for i := range content_list {
 		content_list_str[i] = content_list[i].(string)
 	}
-	client.Content = strings.Join(content_list_str, "\n")
+	client.Content = content_list_str
 
 	return nil
 }
