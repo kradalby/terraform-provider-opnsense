@@ -133,13 +133,13 @@ func resourceFirewallAliasPushDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func add_list(client *opnsense.Client, name string, list []interface{}) error {
-	conf := opnsense.AliasPushSet{}
+	conf := opnsense.AliasUtilsSet{}
 
 	for _, v := range list {
 		conf.Address = v.(string)
 		log.Println("[TRACE] adding :", conf.Address)
 
-		_, err := client.AliasPushAdd(name, conf)
+		_, err := client.AliasUtilsAdd(name, conf)
 
 		if err != nil {
 			return err
@@ -150,13 +150,13 @@ func add_list(client *opnsense.Client, name string, list []interface{}) error {
 }
 
 func del_list(client *opnsense.Client, name string, list []interface{}) error {
-	conf := opnsense.AliasPushSet{}
+	conf := opnsense.AliasUtilsSet{}
 
 	for _, v := range list {
 		conf.Address = v.(string)
 		log.Println("[TRACE] removing :", conf.Address)
 
-		_, err := client.AliasPushDel(name, conf)
+		_, err := client.AliasUtilsDel(name, conf)
 
 		if err != nil {
 			return err
