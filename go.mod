@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.26.8 // indirect
 	github.com/beevik/etree v0.0.0-20171015221209-af219c0c7ea1 // indirect
 	github.com/bmatcuk/doublestar v1.2.2 // indirect
-	github.com/cdeconinck/opnsense-go v0.0.0-20200215180310-7a3f75984645
+	github.com/cdeconinck/opnsense-go v0.0.0-20200306164458-edf6e775f97e
 	github.com/chzyer/logex v1.1.11-0.20160617073814-96a4d311aa9b // indirect
 	github.com/coreos/bbolt v1.3.1-coreos.1 // indirect
 	github.com/digitalocean/go-netbox v0.0.0-20200211112514-6bc857cb89fd

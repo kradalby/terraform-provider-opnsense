@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/satori/go.uuid"
 	"log"
+	"strings"
 )
 
 func resourceFirewallAlias() *schema.Resource {
@@ -108,7 +109,6 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceFirewallAliasCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*opnsense.Client)
-
 	client := opnsense.AliasSet{}
 
 	err := prepareFirewallAliasConfiguration(d, &client)
@@ -180,24 +180,13 @@ func prepareFirewallAliasConfiguration(d *schema.ResourceData, client *opnsense.
 	client.Name = d.Get("name").(string)
 	client.Description = d.Get("description").(string)
 	client.Type = d.Get("type").(string)
-	var content = d.Get("content")
+	content_list := d.Get("content").(*schema.Set).List()
 
-	// TODO reduce code
-	content_str := ""
-	if content != nil {
-		contentSet := content.(*schema.Set).List()
-
-		for k, v := range contentSet {
-			content_str = content_str + v.(string)
-
-			if len(contentSet)-1 != k {
-				content_str = content_str + "\n"
-			}
-		}
+	content_list_str := make([]string, len(content_list))
+	for i := range content_list {
+		content_list_str[i] = content_list[i].(string)
 	}
-
-	log.Println("[TRACE] content :", content_str)
-	client.Content = content_str
+	client.Content = strings.Join(content_list_str, "\n")
 
 	return nil
 }
