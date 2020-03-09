@@ -1,7 +1,7 @@
 package opnsense
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/cdeconinck/opnsense-go/opnsense"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/satori/go.uuid"
@@ -95,40 +95,25 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceFirewallAliasCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*opnsense.Client)
-	client := opnsense.AliasFormat{}
+	alias := opnsense.AliasFormat{}
 
-	err := prepareFirewallAliasConfiguration(d, &client)
+	err := prepareFirewallAliasConfiguration(d, &alias)
 	if err != nil {
 		return err
 	}
 
 	// create the alias
-	uuid_created, err := c.AliasAdd(client)
+	uuid_created, err := c.AliasAdd(alias)
 	if err != nil {
 		return err
 	}
 
-	// add this alias to the parent if set
-	/*parent := d.Get("parent")
-	if parent != nil {
-		parent_uuid, err := uuid.FromString(parent.(string))
-		if err != nil {
-			return fmt.Errorf("[ERROR] Failed to parse ID")
-		}
-
-		parent_alias, err_get := c.AliasGet(parent_uuid)
-		if err_get != nil {
-			return fmt.Errorf("Something went wrong while retrieving parent alias for: %s", err_get)
-		}
-
-		parent_alias.Content = append(parent_alias.Content, client.Name)
-
-		_, err_update := c.AliasUpdate(parent_uuid, *parent_alias)
-
-		if err_update != nil {
-			log.Println(err_update)
-		}
-	}*/
+	// add the alias to his parent if necessary
+	parent := d.Get("parent")
+	if parent != nil || parent != "" {
+		alias_name := d.Get("name").(string)
+		add_nested_alias(c, parent.(string), alias_name)
+	}
 
 	d.SetId(uuid_created.String())
 	resourceFirewallAliasRead(d, meta)
@@ -139,24 +124,39 @@ func resourceFirewallAliasCreate(d *schema.ResourceData, meta interface{}) error
 func resourceFirewallAliasUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*opnsense.Client)
 
-	uuid, err := uuid.FromString(d.Id())
+	elm_uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		return err
 	}
 
-	client := opnsense.AliasFormat{}
+	alias := opnsense.AliasFormat{}
 
-	err = prepareFirewallAliasConfiguration(d, &client)
+	err = prepareFirewallAliasConfiguration(d, &alias)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.AliasUpdate(uuid, client)
+	_, err = c.AliasUpdate(elm_uuid, alias)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(uuid.String())
+	if d.HasChange("parent") {
+		old_parent, new_parent := d.GetChange("parent")
+		log.Println("[ERROR] OLD Parent : ", old_parent)
+		log.Println("[ERROR] NEW Parent : ", new_parent)
+
+		// remove this alias from the previous nested alias
+		if old_parent != nil && old_parent != "" {
+			remove_nested_alias(c, old_parent.(string), alias.Name)
+		}
+
+		if new_parent != nil && new_parent != "" {
+			add_nested_alias(c, new_parent.(string), alias.Name)
+		}
+	}
+
+	d.SetId(elm_uuid.String())
 	resourceFirewallAliasRead(d, meta)
 
 	return nil
@@ -170,28 +170,88 @@ func resourceFirewallAliasDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	// if this alias is nested, we need to delete the link before deleting this alias
+	parent := d.Get("parent")
+	if parent != nil || parent != "" {
+		alias_name := d.Get("name").(string)
+		remove_nested_alias(c, parent.(string), alias_name)
+	}
+
 	_, err = c.AliasDelete(uuid)
 	if err != nil {
 		return err
 	}
-
 	d.SetId("")
 
 	return nil
 }
 
-func prepareFirewallAliasConfiguration(d *schema.ResourceData, client *opnsense.AliasFormat) error {
-	client.Enabled = d.Get("enabled").(bool)
-	client.Name = d.Get("name").(string)
-	client.Description = d.Get("description").(string)
-	client.Type = d.Get("type").(string)
+func prepareFirewallAliasConfiguration(d *schema.ResourceData, conf *opnsense.AliasFormat) error {
+	conf.Enabled = d.Get("enabled").(bool)
+	conf.Name = d.Get("name").(string)
+	conf.Description = d.Get("description").(string)
+	conf.Type = d.Get("type").(string)
 
 	content_list := d.Get("content").(*schema.Set).List()
 	content_list_str := make([]string, len(content_list))
 	for i := range content_list {
 		content_list_str[i] = content_list[i].(string)
 	}
-	client.Content = content_list_str
+	conf.Content = content_list_str
+
+	return nil
+}
+
+func remove_in_list(slice []string, elm string) ([]string, bool) {
+	for k, v := range slice {
+		if v == elm {
+			fmt.Println("[ERROR] Removing %s from list", elm)
+
+			return append(slice[:k], slice[k+1:]...), true
+		}
+	}
+
+	return slice, false
+}
+
+func remove_nested_alias(c *opnsense.Client, parent_uuid_str string, name string) error {
+	parent_uuid, err := uuid.FromString(parent_uuid_str)
+	if err != nil {
+		return fmt.Errorf("[ERROR] Failed to parse ID")
+	}
+
+	parent_alias, err_get := c.AliasGet(parent_uuid)
+	if err_get != nil {
+		return fmt.Errorf("Something went wrong while retrieving parent alias for: %s", err_get)
+	}
+
+	parent_alias.Content, _ = remove_in_list(parent_alias.Content, name)
+	_, err_update := c.AliasUpdate(parent_uuid, *parent_alias)
+
+	if err_update != nil {
+		return err_update
+	}
+
+	return nil
+}
+
+func add_nested_alias(c *opnsense.Client, parent_uuid_str string, name string) error {
+	parent_uuid, err := uuid.FromString(parent_uuid_str)
+	if err != nil {
+		return fmt.Errorf("[ERROR] Failed to parse ID")
+	}
+
+	parent_alias, err_get := c.AliasGet(parent_uuid)
+	if err_get != nil {
+		return fmt.Errorf("Something went wrong while retrieving parent alias for: %s", err_get)
+	}
+
+	parent_alias.Content = append(parent_alias.Content, name)
+	_, err_update := c.AliasUpdate(parent_uuid, *parent_alias)
+
+	if err_update != nil {
+		return err_update
+	}
 
 	return nil
 }
