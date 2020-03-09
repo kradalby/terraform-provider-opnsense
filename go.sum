@@ -117,6 +117,10 @@ github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx2
 github.com/bsm/go-vlq v0.0.0-20150828105119-ec6e8d4f5f4e/go.mod h1:N+BjUcTjSxc2mtRGSCPsat1kze3CUtvJN3/jTXlp29k=
 github.com/cdeconinck/opnsense-go v0.0.0-20200306102544-9ac32c7b9b08 h1:iq03C9UlKou/r7PIDje7L0EXL263IiXOlmww6by8UbI=
 github.com/cdeconinck/opnsense-go v0.0.0-20200306102544-9ac32c7b9b08/go.mod h1:zwqKoFmAkC4L/6gqovSwyxyzu+loHNEnOZQpai4HKWs=
+github.com/cdeconinck/opnsense-go v0.0.0-20200306164458-edf6e775f97e h1:iK+7UFCtGJDWBitB0M4qm3mambKt8zN9+uFsNuPkEHM=
+github.com/cdeconinck/opnsense-go v0.0.0-20200306164458-edf6e775f97e/go.mod h1:zwqKoFmAkC4L/6gqovSwyxyzu+loHNEnOZQpai4HKWs=
+github.com/cdeconinck/opnsense-go v0.0.0-20200309140801-893ae0fb91ea h1:IIo5JfNB1cR3EpTt2pIH9UoORHXmfvlQBgbSvS2wYKU=
+github.com/cdeconinck/opnsense-go v0.0.0-20200309140801-893ae0fb91ea/go.mod h1:zwqKoFmAkC4L/6gqovSwyxyzu+loHNEnOZQpai4HKWs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cheggaaa/pb v1.0.27/go.mod h1:pQciLPpbU0oxA0h+VJYYLxO+XeDQb5pZijXscXHm81s=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
