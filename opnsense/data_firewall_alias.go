@@ -44,39 +44,39 @@ func dataFirewallAlias() *schema.Resource {
 func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[TRACE] Getting OPNsense client from meta")
 	c := meta.(*opnsense.Client)
-	wanted_name := d.Get("name")
+	wantedName := d.Get("name")
 
 	// list all alias
-	alias_list, err_list := c.AliasGetList()
-	if err_list != nil {
+	aliasList, err := c.AliasGetList()
+	if err != nil {
 		// temporary fix for the internal error API when we try to get an unreferenced UIID
-		if err_list.Error() == "Internal Error status code received" {
+		if err.Error() == "Internal Error status code received" {
 			d.SetId("")
 			return nil
 		}
-		log.Printf("ERROR: \n%#v", err_list)
-		return err_list
+		log.Printf("ERROR: \n%#v", err)
+		return err
 	}
 
-	for _, alias := range alias_list.Rows {
-		if alias.Name == wanted_name {
-			wanted_uuid, err_uuid := uuid.FromString(alias.UUID)
-			if err_uuid != nil {
-				log.Printf("[ERROR]dataFirewallAliasRead -  Failed to parse ID")
-				return err_uuid
+	for _, alias := range aliasList.Rows {
+		if alias.Name == wantedName {
+			wantedUUID, err := uuid.FromString(alias.UUID)
+			if err != nil {
+				log.Printf("[ERROR] dataFirewallAliasRead -  Failed to parse ID")
+				return err
 			}
 
-			wanted_alias, err_get := c.AliasGet(wanted_uuid)
-			if err_get != nil {
-				return err_get
+			wantedAlias, err := c.AliasGet(wantedUUID)
+			if err != nil {
+				return err
 			}
 
-			d.SetId(wanted_alias.UUID.String())
-			d.Set("Name", wanted_alias.Name)
-			d.Set("Enabled", wanted_alias.Enabled)
-			d.Set("Description", wanted_alias.Description)
-			d.Set("Type", wanted_alias.Type)
-			d.Set("Content", wanted_alias.Content)
+			d.SetId(wantedAlias.UUID.String())
+			d.Set("Name", wantedAlias.Name)
+			d.Set("Enabled", wantedAlias.Enabled)
+			d.Set("Description", wantedAlias.Description)
+			d.Set("Type", wantedAlias.Type)
+			d.Set("Content", wantedAlias.Content)
 			break
 		}
 	}
