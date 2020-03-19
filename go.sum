@@ -375,6 +375,8 @@ github.com/kradalby/opnsense-go v0.0.0-20200109171527-24fe4d2794f4 h1:Xji+8OI3p+
 github.com/kradalby/opnsense-go v0.0.0-20200109171527-24fe4d2794f4/go.mod h1:wb1B3UuHkGqm9ULp4HxemAyAPSfATBoWmt418X0nvdI=
 github.com/kradalby/opnsense-go v0.0.0-20200215180310-7a3f75984645 h1:toVbbirvICvJUjAWoYL5w1Za/+ZYsGduLwN/3gdkKnE=
 github.com/kradalby/opnsense-go v0.0.0-20200215180310-7a3f75984645/go.mod h1:qwCrdTCvgxYSsRVem0fAGqYybq+C1j1He8l1EfNRgUs=
+github.com/kradalby/opnsense-go v0.0.0-20200319204603-6a0322a93faf h1:sKXrdPSrz4EP1KDwJie83puQKmQ5gP0Qp9CO1Ex18Ts=
+github.com/kradalby/opnsense-go v0.0.0-20200319204603-6a0322a93faf/go.mod h1:qwCrdTCvgxYSsRVem0fAGqYybq+C1j1He8l1EfNRgUs=
 github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348/go.mod h1:B69LEHPfb2qLo0BaaOLcbitczOKLWTsrBG9LczfCD4k=
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/lib/pq v1.0.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
