@@ -10,7 +10,7 @@ steps:
   - name: lint
     image: golangci/golangci-lint:latest
     commands:
-      - golangci-lint run -v
+      - golangci-lint run -v --timeout 10m
 
   - name: build
     image: golang:1.14.1-stretch
