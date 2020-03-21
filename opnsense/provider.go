@@ -1,10 +1,11 @@
 package opnsense
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kradalby/opnsense-go/opnsense"
-	"log"
 )
 
 func Provider() terraform.ResourceProvider {

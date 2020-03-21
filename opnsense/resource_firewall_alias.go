@@ -2,12 +2,13 @@ package opnsense
 
 import (
 	"fmt"
+	"log"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
-	"github.com/satori/go.uuid"
-	"log"
-	"strings"
+	uuid "github.com/satori/go.uuid"
 )
 
 func resourceFirewallAlias() *schema.Resource {
