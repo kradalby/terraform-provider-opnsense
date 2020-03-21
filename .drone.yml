@@ -34,7 +34,7 @@ steps:
       event:
         - push
 
-  notify:
+  - name: notify
     image: drillster/drone-email
     host: smtp.fap.no
     skip_verify: true
