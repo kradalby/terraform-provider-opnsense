@@ -70,9 +70,11 @@ func resourceFirewallAlias() *schema.Resource {
 
 func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[TRACE] Getting OPNsense client from meta")
+
 	c := meta.(*opnsense.Client)
 
 	log.Printf("[TRACE] Converting ID to UUID")
+
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		log.Printf("[ERROR]resourceFirewallAliasRead -  Failed to parse ID")
@@ -80,6 +82,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[TRACE] Fetching alias configuration from OPNsense")
+
 	alias, err := c.AliasGet(uuid)
 	if err != nil {
 		// temporary fix for the internal error API when we try to get an unreferenced UIID
@@ -87,8 +90,9 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		log.Printf("ERROR: \n%#v", err)
+
 		log.Printf("[ERROR] Failed to fetch uuid: %s", uuid)
+
 		return err
 	}
 
@@ -101,6 +105,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("type", alias.Type)
 	d.Set("description", alias.Description)
 	d.Set("content", alias.Content)
+
 	parents := []string{}
 
 	// check if this alias is a member of another alias (nested)
@@ -141,7 +146,10 @@ func resourceFirewallAliasCreate(d *schema.ResourceData, meta interface{}) error
 	if parent != nil {
 		parentList := parent.(*schema.Set).List()
 		if len(parentList) > 0 {
-			addNestedAlias(c, parentList, alias.Name)
+			err = addNestedAlias(c, parentList, alias.Name)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -152,9 +160,9 @@ func resourceFirewallAliasCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.SetId(createdUUID.String())
-	resourceFirewallAliasRead(d, meta)
+	err = resourceFirewallAliasRead(d, meta)
 
-	return nil
+	return err
 }
 
 func resourceFirewallAliasUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -191,11 +199,17 @@ func resourceFirewallAliasUpdate(d *schema.ResourceData, meta interface{}) error
 
 		// remove this alias from the previous nested alias
 		if len(listToDel) > 0 {
-			removeNestedAlias(c, listToDel, alias.Name)
+			err = removeNestedAlias(c, listToDel, alias.Name)
+			if err != nil {
+				return err
+			}
 		}
 
 		if len(listToAdd) > 0 {
-			addNestedAlias(c, listToAdd, alias.Name)
+			err = addNestedAlias(c, listToAdd, alias.Name)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -206,9 +220,10 @@ func resourceFirewallAliasUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.SetId(elmUUID.String())
-	resourceFirewallAliasRead(d, meta)
 
-	return nil
+	err = resourceFirewallAliasRead(d, meta)
+
+	return err
 }
 
 func resourceFirewallAliasDelete(d *schema.ResourceData, meta interface{}) error {
@@ -224,7 +239,10 @@ func resourceFirewallAliasDelete(d *schema.ResourceData, meta interface{}) error
 	if parent != nil {
 		parentList := parent.(*schema.Set).List()
 		if len(parentList) > 0 {
-			removeNestedAlias(c, parentList, d.Get("name").(string))
+			err = removeNestedAlias(c, parentList, d.Get("name").(string))
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -241,7 +259,7 @@ func resourceFirewallAliasDelete(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId("")
 
-	return nil
+	return err
 }
 
 func prepareFirewallAliasConfiguration(d *schema.ResourceData, conf *opnsense.AliasFormat) error {
@@ -252,9 +270,11 @@ func prepareFirewallAliasConfiguration(d *schema.ResourceData, conf *opnsense.Al
 
 	contentList := d.Get("content").(*schema.Set).List()
 	contentListStr := make([]string, len(contentList))
+
 	for i := range contentList {
 		contentListStr[i] = contentList[i].(string)
 	}
+
 	conf.Content = contentListStr
 
 	return nil
@@ -279,10 +299,11 @@ func removeNestedAlias(c *opnsense.Client, parentUUIDList []interface{}, name st
 
 		parentAlias, err := c.AliasGet(parentUUID)
 		if err != nil {
-			return fmt.Errorf("Something went wrong while retrieving parent alias for: %s", err)
+			return fmt.Errorf("[ERROR] Something went wrong while retrieving parent alias for: %s", err)
 		}
 
 		parentAlias.Content, _ = removeInList(parentAlias.Content, name)
+
 		_, err = c.AliasUpdate(parentUUID, *parentAlias)
 		if err != nil {
 			return err
@@ -301,7 +322,7 @@ func addNestedAlias(c *opnsense.Client, parentUUIDList []interface{}, name strin
 
 		parentAlias, err := c.AliasGet(parentUUID)
 		if err != nil {
-			return fmt.Errorf("Something went wrong while retrieving parent alias for: %s", err)
+			return fmt.Errorf("[ERROR] Something went wrong while retrieving parent alias for: %s", err)
 		}
 
 		parentAlias.Content = append(parentAlias.Content, name)

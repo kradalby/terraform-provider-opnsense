@@ -20,6 +20,7 @@ func ValidateUUID() schema.SchemaValidateFunc {
 			es = append(es, fmt.Errorf(
 				"expected %s to contain a valid UUID, got: %s", k, v))
 		}
+
 		return
 	}
 }
