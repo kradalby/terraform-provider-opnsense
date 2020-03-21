@@ -1,2 +1,2 @@
 (*schema.ResourceData).Set
-d.Set
+(*github.com/hashicorp/terraform/helper/schema.ResourceData).Set
