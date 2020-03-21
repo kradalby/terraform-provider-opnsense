@@ -10,6 +10,7 @@ linters:
     - unused
     - format
   disable:
+    - interfacer
     - gomnd
     - godox
     - funlen
