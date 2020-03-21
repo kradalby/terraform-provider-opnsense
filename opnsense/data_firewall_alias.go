@@ -1,10 +1,11 @@
 package opnsense
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kradalby/opnsense-go/opnsense"
-	"github.com/satori/go.uuid"
-	"log"
+	uuid "github.com/satori/go.uuid"
 )
 
 func dataFirewallAlias() *schema.Resource {

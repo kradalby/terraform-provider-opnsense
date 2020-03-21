@@ -1,22 +1,30 @@
 pipeline:
+  lint:
+    image: golangci/golangci-lint:latest
+    commands:
+      - golangci-lint run -v
+
   build:
-      image: golang:1.14.1-stretch
-      commands:
-          - go get github.com/mitchellh/gox
-          - gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
-      when: 
-        branch: master
+    image: golang:1.14.1-stretch
+    commands:
+      - go get github.com/mitchellh/gox
+      - gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
 
   deploy:
-      image: appleboy/drone-scp
-      rm: true
-      host: storage.terra.fap.no
-      username: deploy
-      target: /storage/nfs/k8s/builds/terraform-provider-opnsense
-      source: 
-        - dist/*
-      strip_components: 1
-      secrets: [ ssh_key ]
+    image: appleboy/drone-scp
+    rm: true
+    host: storage.terra.fap.no
+    username: deploy
+    target: /storage/nfs/k8s/builds/terraform-provider-opnsense
+    source:
+      - dist/*
+    strip_components: 1
+    secrets: [ssh_key]
+    when:
+      branch:
+        - master
+      event:
+        - push
 
   notify:
     image: drillster/drone-email
@@ -24,8 +32,6 @@ pipeline:
     skip_verify: true
     port: 25
     from: drone@drone.fap.no
-    recipients: [ kradalby@kradalby.no ]
+    recipients: [kradalby@kradalby.no]
     when:
-      status: [ success, changed, failure ]
-
-
+      status: [success, changed, failure]
