@@ -1,16 +1,24 @@
-pipeline:
-  lint:
+---
+kind: pipeline
+type: kubernetes
+name: default
+
+node_selector:
+  drone: "true"
+
+steps:
+  - name: lint
     image: golangci/golangci-lint:latest
     commands:
       - golangci-lint run -v
 
-  build:
+  - name: build
     image: golang:1.14.1-stretch
     commands:
       - go get github.com/mitchellh/gox
       - gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
 
-  deploy:
+  - name: deploy
     image: appleboy/drone-scp
     rm: true
     host: storage.terra.fap.no
