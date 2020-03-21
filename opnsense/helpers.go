@@ -2,8 +2,9 @@ package opnsense
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 func ValidateUUID() schema.SchemaValidateFunc {
@@ -19,7 +20,7 @@ func ValidateUUID() schema.SchemaValidateFunc {
 			es = append(es, fmt.Errorf(
 				"expected %s to contain a valid UUID, got: %s", k, v))
 		}
-		return
 
+		return
 	}
 }

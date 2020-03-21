@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 func resourceWireGuardClient() *schema.Resource {
@@ -81,9 +81,11 @@ func resourceWireGuardClient() *schema.Resource {
 
 func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[TRACE] Getting OPNsense client from meta")
+
 	c := meta.(*opnsense.Client)
 
 	log.Printf("[TRACE] Converting ID to UUID")
+
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		log.Printf("[ERROR] Failed to parse ID")
@@ -91,16 +93,20 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[TRACE] Fetching client configuration from OPNsense")
+
 	client, err := c.WireGuardClientGet(uuid)
 	if err != nil {
 		if err.Error() == "found empty array, most likely 404" {
 			d.SetId("")
 			return nil
 		}
-		log.Printf("ERROR: \n%#v", err)
+
+		log.Printf("[DEBUG]: \n%#v", err)
 		log.Printf("[ERROR] Failed to fetch uuid: %s", uuid)
+
 		return err
 	}
+
 	log.Printf("[DEBUG] Configuration from OPNsense: \n")
 	log.Printf("[DEBUG] %#v \n", client)
 
@@ -119,6 +125,7 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 			log.Printf("[ERROR] Failed to convert ServerPort to int: %s", client.ServerPort)
 			return err
 		}
+
 		d.Set("endpoint_port", serverPort)
 	}
 
@@ -127,6 +134,7 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 		log.Printf("[ERROR] Failed to convert KeepAlive to int: %s", client.KeepAlive)
 		return err
 	}
+
 	d.Set("keep_alive", keepAlive)
 
 	return nil
@@ -148,9 +156,9 @@ func resourceWireGuardClientCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.SetId(uuid.String())
-	resourceWireGuardClientRead(d, meta)
+	err = resourceWireGuardClientRead(d, meta)
 
-	return nil
+	return err
 }
 
 func resourceWireGuardClientUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -174,9 +182,9 @@ func resourceWireGuardClientUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.SetId(uuid.String())
-	resourceWireGuardClientRead(d, meta)
+	err = resourceWireGuardClientRead(d, meta)
 
-	return nil
+	return err
 }
 
 func resourceWireGuardClientDelete(d *schema.ResourceData, meta interface{}) error {
@@ -203,6 +211,7 @@ func prepareClientConfiguration(d *schema.ResourceData, client *opnsense.WireGua
 	} else {
 		client.Enabled = "0"
 	}
+
 	client.Name = d.Get("name").(string)
 	client.PubKey = d.Get("public_key").(string)
 	client.Psk = d.Get("shared_key").(string)
@@ -217,10 +226,12 @@ func prepareClientConfiguration(d *schema.ResourceData, client *opnsense.WireGua
 
 	tunnelAddressList := d.Get("tunnel_address").(*schema.Set).List()
 	tunnelAddressStringList := make([]string, len(tunnelAddressList))
+
 	for index := range tunnelAddressList {
 		tunnelAddressStringList[index] = tunnelAddressList[index].(string)
 	}
 
 	client.TunnelAddress = strings.Join(tunnelAddressStringList, ",")
+
 	return nil
 }

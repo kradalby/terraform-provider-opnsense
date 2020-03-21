@@ -1,10 +1,11 @@
 package opnsense
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kradalby/opnsense-go/opnsense"
-	"log"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -57,6 +58,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	skipTLS := d.Get("allow_unverified_tls").(bool)
 
 	log.Printf("[TRACE] Creating OPNsense client\n")
+
 	c, err := opnsense.NewClient(url, key, secret, skipTLS)
 	if err != nil {
 		log.Printf("[ERROR] Could not create OPNsense client: %#v\n", err)

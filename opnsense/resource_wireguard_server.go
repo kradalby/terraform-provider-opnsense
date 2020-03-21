@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 func resourceWireGuardServer() *schema.Resource {
@@ -52,8 +52,9 @@ func resourceWireGuardServer() *schema.Resource {
 				ValidateFunc: validation.IntBetween(10, 65535),
 			},
 			"mtu": {
-				Type:         schema.TypeInt,
-				Description:  "Set the interface MTU for this interface. Leaving empty uses the MTU from main interface which is fine for most setups.",
+				Type: schema.TypeInt,
+				Description: "Set the interface MTU for this interface. Leaving empty uses the " +
+					"MTU from main interface which is fine for most setups.",
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(0, 16384),
 			},
@@ -98,9 +99,11 @@ func resourceWireGuardServer() *schema.Resource {
 
 func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[TRACE] Getting OPNsense client from meta")
+
 	c := meta.(*opnsense.Client)
 
 	log.Printf("[TRACE] Converting ID to UUID")
+
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		log.Printf("[ERROR] Failed to parse ID")
@@ -108,11 +111,13 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[TRACE] Fetching server configuration from OPNsense")
+
 	server, err := c.WireGuardServerGet(uuid)
 	if err != nil {
 		log.Printf("[ERROR] Failed to fetch uuid: %s", uuid)
 		return err
 	}
+
 	log.Printf("[DEBUG] Configuration from OPNsense: \n")
 	log.Printf("[DEBUG] %#v \n", server)
 
@@ -127,6 +132,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 		log.Printf("[ERROR] Failed to convert ServerPort to int: %s", server.Port)
 		return err
 	}
+
 	d.Set("port", port)
 
 	if server.MTU != "" {
@@ -135,6 +141,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 			log.Printf("[ERROR] Failed to convert MTU to int: %s", server.MTU)
 			return err
 		}
+
 		d.Set("mtu", mtu)
 	}
 
@@ -177,19 +184,22 @@ func resourceWireGuardServerCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+
 	if len(uuids) != 1 {
 		err := fmt.Errorf(
-			"Server returned %d UUIDs for the given server name, must be one",
+			"server returned %d UUIDs for the given server name, must be one",
 			len(uuids),
 		)
 		log.Printf("[ERROR] %#v", err)
+
 		return err
 	}
+
 	d.SetId(uuids[0].String())
 
-	resourceWireGuardServerRead(d, meta)
+	err = resourceWireGuardServerRead(d, meta)
 
-	return nil
+	return err
 }
 
 func resourceWireGuardServerUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -213,9 +223,9 @@ func resourceWireGuardServerUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.SetId(uuid.String())
-	resourceWireGuardServerRead(d, meta)
+	err = resourceWireGuardServerRead(d, meta)
 
-	return nil
+	return err
 }
 
 func resourceWireGuardServerDelete(d *schema.ResourceData, meta interface{}) error {
@@ -242,21 +252,26 @@ func prepareServerConfiguration(d *schema.ResourceData, server *opnsense.WireGua
 	} else {
 		server.Enabled = "0"
 	}
+
 	server.Name = d.Get("name").(string)
 	server.PubKey = d.Get("public_key").(string)
 	server.PrivKey = d.Get("private_key").(string)
+
 	if d.Get("disable_routes").(bool) {
 		server.DisableRoutes = "1"
 	} else {
 		server.DisableRoutes = "0"
 	}
+
 	server.Port = strconv.Itoa(d.Get("port").(int))
+
 	if d.Get("MTU") != nil {
 		server.MTU = strconv.Itoa(d.Get("MTU").(int))
 	}
 
 	tunnelAddressList := d.Get("tunnel_address").(*schema.Set).List()
 	tunnelAddressStringList := make([]string, len(tunnelAddressList))
+
 	for index := range tunnelAddressList {
 		tunnelAddressStringList[index] = tunnelAddressList[index].(string)
 	}
@@ -265,6 +280,7 @@ func prepareServerConfiguration(d *schema.ResourceData, server *opnsense.WireGua
 
 	dnsAddressList := d.Get("dns").(*schema.Set).List()
 	dnsAddressStringList := make([]string, len(dnsAddressList))
+
 	for index := range dnsAddressList {
 		dnsAddressStringList[index] = dnsAddressList[index].(string)
 	}
@@ -273,10 +289,12 @@ func prepareServerConfiguration(d *schema.ResourceData, server *opnsense.WireGua
 
 	peerList := d.Get("peers").(*schema.Set).List()
 	peerStringList := make([]string, len(peerList))
+
 	for index := range peerList {
 		peerStringList[index] = peerList[index].(string)
 	}
 
 	server.Peers = strings.Join(peerStringList, ",")
+
 	return nil
 }

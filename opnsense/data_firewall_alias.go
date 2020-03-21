@@ -1,10 +1,11 @@
 package opnsense
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kradalby/opnsense-go/opnsense"
-	"github.com/satori/go.uuid"
-	"log"
+	uuid "github.com/satori/go.uuid"
 )
 
 func dataFirewallAlias() *schema.Resource {
@@ -43,7 +44,9 @@ func dataFirewallAlias() *schema.Resource {
 // Read will fetch the data of a resource.
 func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[TRACE] Getting OPNsense client from meta")
+
 	c := meta.(*opnsense.Client)
+
 	wantedName := d.Get("name")
 
 	// list all alias
@@ -54,7 +57,9 @@ func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
+
 		log.Printf("ERROR: \n%#v", err)
+
 		return err
 	}
 
@@ -77,6 +82,7 @@ func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 			d.Set("Description", wantedAlias.Description)
 			d.Set("Type", wantedAlias.Type)
 			d.Set("Content", wantedAlias.Content)
+
 			break
 		}
 	}
