@@ -35,11 +35,17 @@ steps:
         - push
 
   - name: notify
+    pull: if-not-exists
     image: drillster/drone-email
-    host: smtp.fap.no
-    skip_verify: true
-    port: 25
-    from: drone@drone.fap.no
-    recipients: [kradalby@kradalby.no]
+    settings:
+      from: drone@drone.fap.no
+      host: smtp.fap.no
+      port: 25
+      recipients:
+        - kradalby@kradalby.no
+      skip_verify: true
     when:
-      status: [success, changed, failure]
+      status:
+        - success
+        - changed
+        - failure
