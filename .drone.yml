@@ -49,3 +49,10 @@ steps:
         - success
         - changed
         - failure
+
+---
+kind: secret
+name: ssh_key
+get:
+  path: ssh
+  name: deploy
