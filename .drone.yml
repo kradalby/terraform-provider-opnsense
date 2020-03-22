@@ -19,15 +19,19 @@ steps:
       - gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
 
   - name: deploy
+    pull: always
     image: appleboy/drone-scp
-    rm: true
-    host: storage.terra.fap.no
-    username: deploy
-    target: /storage/nfs/k8s/builds/terraform-provider-opnsense
-    source:
-      - dist/*
-    strip_components: 1
-    secrets: [ssh_key]
+    settings:
+      host: storage.terra.fap.no
+      rm: true
+      source:
+        - dist/*
+      strip_components: 1
+      target: /storage/nfs/k8s/builds/terraform-provider-opnsense
+      username: deploy
+    environment:
+      SSH_KEY:
+        from_secret: ssh_key
     when:
       branch:
         - master
