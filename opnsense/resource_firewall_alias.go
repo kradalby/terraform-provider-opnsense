@@ -86,7 +86,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	alias, err := c.AliasGet(uuid)
 	if err != nil {
 		// temporary fix for the internal error API when we try to get an unreferenced UIID
-		if err.Error() == "Internal Error status code received" {
+		if err.Error() == apiInternalErrorMsg {
 			d.SetId("")
 			return nil
 		}
