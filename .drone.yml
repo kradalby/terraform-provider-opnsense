@@ -38,22 +38,6 @@ steps:
       event:
         - push
 
-  - name: notify
-    pull: if-not-exists
-    image: drillster/drone-email
-    settings:
-      from: drone@drone.fap.no
-      host: smtp.fap.no
-      port: 25
-      recipients:
-        - kradalby@kradalby.no
-      skip_verify: true
-    when:
-      status:
-        - success
-        - changed
-        - failure
-
 ---
 kind: secret
 name: ssh_key
