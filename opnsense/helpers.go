@@ -7,6 +7,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const apiInternalErrorMsg = "Internal Error status code received"
+
 func ValidateUUID() schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (s []string, es []error) {
 		v, ok := i.(string)
