@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go v0.50.0 // indirect
 	cloud.google.com/go/storage v1.4.0 // indirect
 	github.com/Azure/go-autorest v9.10.0+incompatible // indirect
-	github.com/aws/aws-sdk-go v1.26.8 // indirect
 	github.com/beevik/etree v0.0.0-20171015221209-af219c0c7ea1 // indirect
 	github.com/bmatcuk/doublestar v1.2.2 // indirect
 	github.com/chzyer/logex v1.1.11-0.20160617073814-96a4d311aa9b // indirect
@@ -26,7 +25,7 @@ require (
 	github.com/hashicorp/hil v0.0.0-20190212132231-97b3a9cdfa93 // indirect
 	github.com/hashicorp/logutils v0.0.0-20150609070431-0dc08b1671f3 // indirect
 	github.com/hashicorp/serf v0.8.2-0.20171022020050-c20a0b1b1ea9 // indirect
-	github.com/hashicorp/terraform v0.12.24
+	github.com/hashicorp/terraform v0.12.25
 	github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136 // indirect
 	github.com/hashicorp/yamux v0.0.0-20190923154419-df201c70410d // indirect
 	github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a // indirect
@@ -50,8 +49,6 @@ require (
 	github.com/ulikunitz/xz v0.5.6 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	go.opencensus.io v0.22.2 // indirect
-	golang.org/x/crypto v0.0.0-20191219195013-becbf705a915 // indirect
-	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6 // indirect
 	golang.org/x/sys v0.0.0-20191223224216-5a3cf8467b4e // indirect
 	golang.org/x/tools v0.0.0-20191223222630-4d2fe2ba6743 // indirect
