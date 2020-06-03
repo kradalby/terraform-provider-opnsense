@@ -294,12 +294,12 @@ func removeNestedAlias(c *opnsense.Client, parentUUIDList []interface{}, name st
 	for _, parentUUIDStr := range parentUUIDList {
 		parentUUID, err := uuid.FromString(parentUUIDStr.(string))
 		if err != nil {
-			return fmt.Errorf("[ERROR] Failed to parse ID")
+			return fmt.Errorf("[ERROR] Failed to parse ID: %w", err)
 		}
 
 		parentAlias, err := c.AliasGet(parentUUID)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Something went wrong while retrieving parent alias for: %s", err)
+			return fmt.Errorf("[ERROR] Something went wrong while retrieving parent alias for: %w", err)
 		}
 
 		parentAlias.Content, _ = removeInList(parentAlias.Content, name)
@@ -317,12 +317,12 @@ func addNestedAlias(c *opnsense.Client, parentUUIDList []interface{}, name strin
 	for _, parentUUIDStr := range parentUUIDList {
 		parentUUID, err := uuid.FromString(parentUUIDStr.(string))
 		if err != nil {
-			return fmt.Errorf("[ERROR] Failed to parse ID")
+			return fmt.Errorf("[ERROR] Failed to parse ID: %w", err)
 		}
 
 		parentAlias, err := c.AliasGet(parentUUID)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Something went wrong while retrieving parent alias for: %s", err)
+			return fmt.Errorf("[ERROR] Something went wrong while retrieving parent alias for: %w", err)
 		}
 
 		parentAlias.Content = append(parentAlias.Content, name)

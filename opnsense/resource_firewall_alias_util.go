@@ -45,8 +45,7 @@ func resourceFirewallAliasUtilRead(d *schema.ResourceData, meta interface{}) err
 			return nil
 		}
 
-		return fmt.Errorf(`error while retrieving the list of address used 
-		 in the alias '%s' with with alias_util : %s`, name, err)
+		return fmt.Errorf("list of address used in the alias '%s' could not be retreived : %w", name, err)
 	}
 
 	// We don't want to retrieved all addresse present in the alias because this resource will manage only one address
@@ -84,8 +83,7 @@ func resourceFirewallAliasUtilCreate(d *schema.ResourceData, meta interface{}) e
 
 	_, err := c.AliasUtilsAdd(name, conf)
 	if err != nil {
-		return fmt.Errorf(`error while creating the resource with alias_util, 
-		 failed to add '%s' from alias '%s' : %s`, conf.Address, name, err)
+		return fmt.Errorf("failed to add '%s' from alias '%s' : %w", conf.Address, name, err)
 	}
 
 	d.SetId(address)
@@ -116,16 +114,14 @@ func resourceFirewallAliasUtilUpdate(d *schema.ResourceData, meta interface{}) e
 	_, err := c.AliasUtilsAdd(newName.(string), conf)
 
 	if err != nil {
-		return fmt.Errorf(`error while updating an alias with alias_util,
-		 failed to add '%s' in alias '%s' : %s`, conf.Address, newName.(string), err)
+		return fmt.Errorf("failed to add '%s' in alias '%s' : %w", conf.Address, newName.(string), err)
 	}
 
 	conf.Address = oldAddress.(string)
 	_, err = c.AliasUtilsDel(oldName.(string), conf)
 
 	if err != nil {
-		return fmt.Errorf(`error while updating an alias with alias_util,
-		 failed to remove '%s' in alias '%s' : %s`, conf.Address, oldName.(string), err)
+		return fmt.Errorf("failed to remove '%s' in alias '%s' : %w", conf.Address, oldName.(string), err)
 	}
 
 	d.SetId(newAddress.(string))
@@ -147,8 +143,7 @@ func resourceFirewallAliasUtilDelete(d *schema.ResourceData, meta interface{}) e
 		// resource might already be destroyed (manually for example) but the API doesn't return
 		// an error when we try to delete a non existing address in the alias so we can skip
 		// this logic and always return the error send by opnsense
-		return fmt.Errorf(`error while deleting the resource with alias_util,
-		 failed to remove '%s' from alias '%s' : %s`, conf.Address, name, err)
+		return fmt.Errorf("failed to remove '%s' from alias '%s' : %w", conf.Address, name, err)
 	}
 
 	return nil
