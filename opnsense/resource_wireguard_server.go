@@ -187,8 +187,8 @@ func resourceWireGuardServerCreate(d *schema.ResourceData, meta interface{}) err
 
 	if len(uuids) != 1 {
 		err := fmt.Errorf(
-			"server returned %d UUIDs for the given server name, must be one",
-			len(uuids),
+			"server returned %d UUIDs for the given server name %w",
+			len(uuids), ErrMoreThanOneUUIDReturned,
 		)
 		log.Printf("[ERROR] %#v", err)
 
