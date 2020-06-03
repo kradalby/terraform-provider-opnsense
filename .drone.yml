@@ -1,68 +1,104 @@
 ---
-kind: pipeline
-type: kubernetes
-name: default
-
-node_selector:
-  drone: "true"
-
-steps:
-  - name: lint
-    image: golangci/golangci-lint:latest
-    commands:
-      - golangci-lint run -v --timeout 10m
-
-  - name: build
-    image: golang:1.14.3-stretch
-    commands:
-      - go get github.com/mitchellh/gox
-      - gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
-
-  - name: deploy
-    pull: always
-    image: appleboy/drone-scp
-    settings:
-      host: storage.terra.fap.no
-      rm: true
-      source:
-        - dist/*
-      strip_components: 1
-      target: /storage/nfs/k8s/builds/terraform-provider-opnsense
-      username: deploy
-    environment:
-      SSH_KEY:
-        from_secret: ssh_key
-    when:
-      branch:
-        - master
-      event:
-        - push
-
-  - name: discord notification
-    image: appleboy/drone-discord
-    settings:
-      webhook_id:
-        from_secret: discord_webhook_id
-      webhook_token:
-        from_secret: discord_webhook_token
-
+{
+   "kind": "pipeline",
+   "name": "default",
+   "node_selector": {
+      "drone": true
+   },
+   "steps": [
+      {
+         "commands": [
+            "golangci-lint run -v --timeout 10m"
+         ],
+         "image": "golangci/golangci-lint:latest",
+         "name": "Go lint",
+         "pull": "always"
+      },
+      {
+         "commands": [
+            "go get github.com/mitchellh/gox",
+            "gox -output=\"dist/{{.Dir}}_{{.OS}}_{{.Arch}}\""
+         ],
+         "image": "golang:1.14.4-stretch",
+         "name": "Go build",
+         "pull": "always"
+      },
+      {
+         "environment": {
+            "SSH_KEY": {
+               "from_secret": "ssh_key"
+            }
+         },
+         "image": "appleboy/drone-scp",
+         "name": "Deploy to builds",
+         "pull": "always",
+         "settings": {
+            "host": "storage.terra.fap.no",
+            "rm": true,
+            "source": [
+               "dist/*"
+            ],
+            "strip_components": 1,
+            "target": "/storage/nfs/k8s/builds/terraform-provider-opnsense",
+            "username": "deploy"
+         },
+         "trigger": {
+            "branch": [
+               "master"
+            ],
+            "event": [
+               "push"
+            ]
+         }
+      },
+      {
+         "image": "appleboy/drone-discord",
+         "name": "Notify Discord",
+         "pull": "always",
+         "settings": {
+            "message": "{{#success build.status}} ✅  Build #{{build.number}} of `{{repo.name}}` succeeded.\n\n📝 Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐 {{ build.link }}\n\n ✅ duration: {{duration build.started build.finished}} \n\n ✅ started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}} \n\n ✅ finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}} {{else}} ❌  Build #{{build.number}} of `{{repo.name}}` failed.\n\n📝 Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐 {{ build.link }}\n\n ✅ duration: {{duration build.started build.finished}} \n\n ✅ started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}} \n\n ✅ finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}{{/success}}\n",
+            "webhook_id": {
+               "from_secret": "discord_webhook_id"
+            },
+            "webhook_token": {
+               "from_secret": "discord_webhook_token"
+            }
+         },
+         "when": {
+            "status": [
+               "success",
+               "failure"
+            ]
+         }
+      }
+   ],
+   "type": "kubernetes"
+}
 ---
-kind: secret
-name: discord_webhook_id
-get:
-  path: discord-build
-  name: id
-
+{
+   "get": {
+      "name": "id",
+      "path": "discord-build"
+   },
+   "kind": "secret",
+   "name": "discord_webhook_id"
+}
 ---
-kind: secret
-name: discord_webhook_token
-get:
-  path: discord-build
-  name: token
-
+{
+   "get": {
+      "name": "token",
+      "path": "discord-build"
+   },
+   "kind": "secret",
+   "name": "discord_webhook_token"
+}
 ---
-kind: secret
-name: ssh_key
-get:
-  path: ssh
-  name: deploy
+{
+   "get": {
+      "name": "deploy",
+      "path": "ssh"
+   },
+   "kind": "secret",
+   "name": "ssh_key"
+}
+...
