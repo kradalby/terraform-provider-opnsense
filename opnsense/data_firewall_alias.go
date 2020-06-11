@@ -67,7 +67,7 @@ func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 		if alias.Name == wantedName {
 			wantedUUID, err := uuid.FromString(alias.UUID)
 			if err != nil {
-				log.Printf("[ERROR] dataFirewallAliasRead -  Failed to parse ID")
+				log.Printf("[ERROR] dataFirewallAliasRead - Failed to parse ID")
 				return err
 			}
 
