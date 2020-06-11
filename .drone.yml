@@ -1,7 +1,7 @@
 ---
 {
    "kind": "pipeline",
-   "name": "default",
+   "name": "Kubernetes",
    "node_selector": {
       "drone": true
    },
@@ -42,7 +42,7 @@
             "target": "/storage/nfs/k8s/builds/terraform-provider-opnsense",
             "username": "deploy"
          },
-         "trigger": {
+         "when": {
             "branch": [
                "master"
             ],
