@@ -8,7 +8,16 @@
    "steps": [
       {
          "commands": [
-            "golangci-lint run -v --timeout 10m"
+            "npm install prettier",
+            "npx prettier --check \"**/*.{ts,js,md,yaml,yml,sass,css,scss}\""
+         ],
+         "image": "node:lts",
+         "name": "Prettier lint",
+         "pull": "always"
+      },
+      {
+         "commands": [
+            "golangci-lint run -v --timeout 10m --tests=false"
          ],
          "image": "golangci/golangci-lint:latest",
          "name": "Go lint",
@@ -39,7 +48,7 @@
                "dist/*"
             ],
             "strip_components": 1,
-            "target": "/storage/nfs/k8s/builds/terraform-provider-opnsense",
+            "target": "/storage/serve/builds/terraform-provider-opnsense",
             "username": "deploy"
          },
          "when": {
@@ -56,7 +65,7 @@
          "name": "Notify Discord",
          "pull": "always",
          "settings": {
-            "message": "{{#success build.status}} ✅  Build #{{build.number}} of `{{repo.name}}` succeeded.\n\n📝 Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐 {{ build.link }}\n\n ✅ duration: {{duration build.started build.finished}} \n\n ✅ started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}} \n\n ✅ finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}} {{else}} ❌  Build #{{build.number}} of `{{repo.name}}` failed.\n\n📝 Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐 {{ build.link }}\n\n ✅ duration: {{duration build.started build.finished}} \n\n ✅ started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}} \n\n ✅ finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}{{/success}}\n",
+            "message": "{{#success build.status}}\n✅  Build #{{build.number}} of `{{repo.name}}` succeeded.\n\n📝  Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐  {{ build.link }}\n\n✅  duration: {{duration build.started build.finished}}\n✅  started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}}\n✅  finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}\n\n{{else}}\n@everyone\n❌  Build #{{build.number}} of `{{repo.name}}` failed.\n\n📝  Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐  {{ build.link }}\n\n✅  duration: {{duration build.started build.finished}}\n✅  started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}}\n✅  finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}\n\n{{/success}}\n",
             "webhook_id": {
                "from_secret": "discord_webhook_id"
             },
