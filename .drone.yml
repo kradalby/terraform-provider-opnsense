@@ -25,6 +25,14 @@
       },
       {
          "commands": [
+            "go test ./..."
+         ],
+         "image": "golang:1.14.4-stretch",
+         "name": "Go test",
+         "pull": "always"
+      },
+      {
+         "commands": [
             "go get github.com/mitchellh/gox",
             "gox -output=\"dist/{{.Dir}}_{{.OS}}_{{.Arch}}\""
          ],
