@@ -247,21 +247,11 @@ func resourceWireGuardServerDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func prepareServerConfiguration(d *schema.ResourceData, server *opnsense.WireGuardServerSet) error {
-	if d.Get("enabled").(bool) {
-		server.Enabled = "1"
-	} else {
-		server.Enabled = "0"
-	}
-
+	server.Enabled = d.Get("enabled").(opnsense.Bool)
 	server.Name = d.Get("name").(string)
 	server.PubKey = d.Get("public_key").(string)
 	server.PrivKey = d.Get("private_key").(string)
-
-	if d.Get("disable_routes").(bool) {
-		server.DisableRoutes = "1"
-	} else {
-		server.DisableRoutes = "0"
-	}
+	server.DisableRoutes = d.Get("disable_routes").(opnsense.Bool)
 
 	server.Port = strconv.Itoa(d.Get("port").(int))
 

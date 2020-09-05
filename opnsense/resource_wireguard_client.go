@@ -206,12 +206,7 @@ func resourceWireGuardClientDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func prepareClientConfiguration(d *schema.ResourceData, client *opnsense.WireGuardClientSet) error {
-	if d.Get("enabled").(bool) {
-		client.Enabled = "1"
-	} else {
-		client.Enabled = "0"
-	}
-
+	client.Enabled = d.Get("enabled").(opnsense.Bool)
 	client.Name = d.Get("name").(string)
 	client.PubKey = d.Get("public_key").(string)
 	client.Psk = d.Get("shared_key").(string)
