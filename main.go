@@ -7,5 +7,6 @@ import (
 
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: opnsense.Provider})
+		ProviderFunc: opnsense.Provider,
+	})
 }

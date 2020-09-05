@@ -36,8 +36,8 @@ func resourceFirewallAliasUtilRead(d *schema.ResourceData, meta interface{}) err
 	c := meta.(*opnsense.Client)
 
 	name := d.Get("name").(string)
-	alias, err := c.AliasUtilsGet(name)
 
+	alias, err := c.AliasUtilsGet(name)
 	if err != nil {
 		d.SetId("")
 		// fix for the internal error API received when we try to get an unreferenced alias
@@ -57,6 +57,7 @@ func resourceFirewallAliasUtilRead(d *schema.ResourceData, meta interface{}) err
 		for _, v := range alias.Rows {
 			if v.Address == addressInState {
 				addressFound = true
+
 				break
 			}
 		}
@@ -111,8 +112,8 @@ func resourceFirewallAliasUtilUpdate(d *schema.ResourceData, meta interface{}) e
 	// We always try to add the new address before removing the previous one because this
 	// could result in an unsafe state where  we have deleted the address without added the new one
 	conf.Address = newAddress.(string)
-	_, err := c.AliasUtilsAdd(newName.(string), conf)
 
+	_, err := c.AliasUtilsAdd(newName.(string), conf)
 	if err != nil {
 		return fmt.Errorf("failed to add '%s' in alias '%s' : %w", conf.Address, newName.(string), err)
 	}

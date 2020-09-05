@@ -107,6 +107,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		log.Printf("[ERROR] Failed to parse ID")
+
 		return err
 	}
 
@@ -115,6 +116,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	server, err := c.WireGuardServerGet(uuid)
 	if err != nil {
 		log.Printf("[ERROR] Failed to fetch uuid: %s", uuid)
+
 		return err
 	}
 
@@ -130,6 +132,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	port, err := strconv.Atoi(server.Port)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert ServerPort to int: %s", server.Port)
+
 		return err
 	}
 
@@ -139,6 +142,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 		mtu, err := strconv.Atoi(server.MTU)
 		if err != nil {
 			log.Printf("[ERROR] Failed to convert MTU to int: %s", server.MTU)
+
 			return err
 		}
 

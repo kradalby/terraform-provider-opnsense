@@ -78,6 +78,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		log.Printf("[ERROR]resourceFirewallAliasRead -  Failed to parse ID")
+
 		return err
 	}
 
@@ -88,6 +89,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 		// temporary fix for the internal error API when we try to get an unreferenced UIID
 		if err.Error() == apiInternalErrorMsg {
 			d.SetId("")
+
 			return nil
 		}
 
@@ -112,6 +114,7 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	aliasList, err := c.AliasGetList()
 	if err != nil {
 		log.Printf("[ERROR]: %v", err)
+
 		return err
 	}
 
