@@ -46,7 +46,8 @@ func resourceWireGuardClient() *schema.Resource {
 					Type:         schema.TypeString,
 					Description:  "Tunnel address for the client, e.g. 10.0.0.1/32",
 					ValidateFunc: validation.CIDRNetwork(0, 32),
-				}},
+				},
+			},
 			"public_key": {
 				Type:        schema.TypeString,
 				Description: "Public key of the client",
@@ -89,6 +90,7 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		log.Printf("[ERROR] Failed to parse ID")
+
 		return err
 	}
 
@@ -98,6 +100,7 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		if err.Error() == "found empty array, most likely 404" {
 			d.SetId("")
+
 			return nil
 		}
 
@@ -123,6 +126,7 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 		serverPort, err := strconv.Atoi(client.ServerPort)
 		if err != nil {
 			log.Printf("[ERROR] Failed to convert ServerPort to int: %s", client.ServerPort)
+
 			return err
 		}
 
@@ -132,6 +136,7 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 	keepAlive, err := strconv.Atoi(client.KeepAlive)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert KeepAlive to int: %s", client.KeepAlive)
+
 		return err
 	}
 
@@ -206,12 +211,7 @@ func resourceWireGuardClientDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func prepareClientConfiguration(d *schema.ResourceData, client *opnsense.WireGuardClientSet) error {
-	if d.Get("enabled").(bool) {
-		client.Enabled = "1"
-	} else {
-		client.Enabled = "0"
-	}
-
+	client.Enabled = d.Get("enabled").(opnsense.Bool)
 	client.Name = d.Get("name").(string)
 	client.PubKey = d.Get("public_key").(string)
 	client.Psk = d.Get("shared_key").(string)

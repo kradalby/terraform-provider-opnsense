@@ -7,9 +7,11 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var ErrExpectedString = errors.New("expected string")
-var ErrInvalidUUID = errors.New("invalid UUID")
-var ErrMoreThanOneUUIDReturned = errors.New("more than one uuid returned")
+var (
+	ErrExpectedString          = errors.New("expected string")
+	ErrInvalidUUID             = errors.New("invalid UUID")
+	ErrMoreThanOneUUIDReturned = errors.New("more than one uuid returned")
+)
 
 const apiInternalErrorMsg = "Internal Error status code received"
 
@@ -18,6 +20,7 @@ func ValidateUUID() schema.SchemaValidateFunc {
 		v, ok := i.(string)
 		if !ok {
 			es = append(es, ErrExpectedString)
+
 			return
 		}
 

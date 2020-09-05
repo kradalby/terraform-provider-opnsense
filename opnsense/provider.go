@@ -63,6 +63,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	c, err := opnsense.NewClient(url, key, secret, skipTLS)
 	if err != nil {
 		log.Printf("[ERROR] Could not create OPNsense client: %#v\n", err)
+
 		return nil, err
 	}
 

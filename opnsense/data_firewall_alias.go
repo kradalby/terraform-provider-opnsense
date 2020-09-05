@@ -36,7 +36,7 @@ func dataFirewallAlias() *schema.Resource {
 				},
 				Computed: true,
 			},
-			//TODO add other fields
+			// TODO add other fields
 		},
 	}
 }
@@ -55,6 +55,7 @@ func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 		// temporary fix for the internal error API when we try to get an unreferenced UIID
 		if err.Error() == apiInternalErrorMsg {
 			d.SetId("")
+
 			return nil
 		}
 
@@ -68,6 +69,7 @@ func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 			wantedUUID, err := uuid.FromString(alias.UUID)
 			if err != nil {
 				log.Printf("[ERROR] dataFirewallAliasRead - Failed to parse ID")
+
 				return err
 			}
 

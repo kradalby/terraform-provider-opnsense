@@ -107,6 +107,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	uuid, err := uuid.FromString(d.Id())
 	if err != nil {
 		log.Printf("[ERROR] Failed to parse ID")
+
 		return err
 	}
 
@@ -115,6 +116,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	server, err := c.WireGuardServerGet(uuid)
 	if err != nil {
 		log.Printf("[ERROR] Failed to fetch uuid: %s", uuid)
+
 		return err
 	}
 
@@ -130,6 +132,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	port, err := strconv.Atoi(server.Port)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert ServerPort to int: %s", server.Port)
+
 		return err
 	}
 
@@ -139,6 +142,7 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 		mtu, err := strconv.Atoi(server.MTU)
 		if err != nil {
 			log.Printf("[ERROR] Failed to convert MTU to int: %s", server.MTU)
+
 			return err
 		}
 
@@ -247,21 +251,11 @@ func resourceWireGuardServerDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func prepareServerConfiguration(d *schema.ResourceData, server *opnsense.WireGuardServerSet) error {
-	if d.Get("enabled").(bool) {
-		server.Enabled = "1"
-	} else {
-		server.Enabled = "0"
-	}
-
+	server.Enabled = d.Get("enabled").(opnsense.Bool)
 	server.Name = d.Get("name").(string)
 	server.PubKey = d.Get("public_key").(string)
 	server.PrivKey = d.Get("private_key").(string)
-
-	if d.Get("disable_routes").(bool) {
-		server.DisableRoutes = "1"
-	} else {
-		server.DisableRoutes = "0"
-	}
+	server.DisableRoutes = d.Get("disable_routes").(opnsense.Bool)
 
 	server.Port = strconv.Itoa(d.Get("port").(int))
 
