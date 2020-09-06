@@ -3,7 +3,7 @@ package opnsense
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kradalby/opnsense-go/opnsense"
 )
 
@@ -14,7 +14,7 @@ func resourceFirewallAliasUtil() *schema.Resource {
 		Update: resourceFirewallAliasUtilUpdate,
 		Delete: resourceFirewallAliasUtilDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -64,7 +64,10 @@ func resourceFirewallAliasUtilRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if addressFound {
-		d.Set("address", addressInState)
+		err = d.Set("address", addressInState)
+		if err != nil {
+			return err
+		}
 	} else {
 		// address no found in the alias, we tell Terraform that the resource no longer exists
 		d.SetId("")

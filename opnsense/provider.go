@@ -1,14 +1,15 @@
 package opnsense
 
 import (
+	"context"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kradalby/opnsense-go/opnsense"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": {
@@ -42,17 +43,21 @@ func Provider() terraform.ResourceProvider {
 			"opnsense_wireguard_server":    resourceWireGuardServer(),
 			"opnsense_firewall_alias":      resourceFirewallAlias(),
 			"opnsense_firewall_alias_util": resourceFirewallAliasUtil(),
+			"opnsense_firmware":            resourceFirmware(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"opnsense_firewall_alias": dataFirewallAlias(),
 		},
 
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
 	url := d.Get("url").(string)
 	key := d.Get("key").(string)
 	secret := d.Get("secret").(string)
@@ -64,8 +69,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if err != nil {
 		log.Printf("[ERROR] Could not create OPNsense client: %#v\n", err)
 
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
-	return c, nil
+	return c, diags
 }

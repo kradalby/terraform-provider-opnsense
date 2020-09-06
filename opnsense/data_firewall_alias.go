@@ -3,7 +3,7 @@ package opnsense
 import (
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kradalby/opnsense-go/opnsense"
 	uuid "github.com/satori/go.uuid"
 )
@@ -79,11 +79,31 @@ func dataFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 			}
 
 			d.SetId(wantedAlias.UUID.String())
-			d.Set("Name", wantedAlias.Name)
-			d.Set("Enabled", wantedAlias.Enabled)
-			d.Set("Description", wantedAlias.Description)
-			d.Set("Type", wantedAlias.Type)
-			d.Set("Content", wantedAlias.Content)
+
+			err = d.Set("Name", wantedAlias.Name)
+			if err != nil {
+				return err
+			}
+
+			err = d.Set("Enabled", wantedAlias.Enabled)
+			if err != nil {
+				return err
+			}
+
+			err = d.Set("Description", wantedAlias.Description)
+			if err != nil {
+				return err
+			}
+
+			err = d.Set("Type", wantedAlias.Type)
+			if err != nil {
+				return err
+			}
+
+			err = d.Set("Content", wantedAlias.Content)
+			if err != nil {
+				return err
+			}
 
 			break
 		}

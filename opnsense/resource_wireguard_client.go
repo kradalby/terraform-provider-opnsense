@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
 	uuid "github.com/satori/go.uuid"
 )
@@ -19,7 +19,7 @@ func resourceWireGuardClient() *schema.Resource {
 		Delete: resourceWireGuardClientDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -45,7 +45,7 @@ func resourceWireGuardClient() *schema.Resource {
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					Description:  "Tunnel address for the client, e.g. 10.0.0.1/32",
-					ValidateFunc: validation.CIDRNetwork(0, 32),
+					ValidateFunc: validation.IsCIDRNetwork(0, 32),
 				},
 			},
 			"public_key": {
@@ -59,10 +59,9 @@ func resourceWireGuardClient() *schema.Resource {
 				Optional:    true,
 			},
 			"endpoint_address": {
-				Type:         schema.TypeString,
-				Description:  "IP or CNAME of remote endpoint",
-				Optional:     true,
-				ValidateFunc: validation.SingleIP(),
+				Type:        schema.TypeString,
+				Description: "IP or CNAME of remote endpoint",
+				Optional:    true,
 			},
 			"endpoint_port": {
 				Type:         schema.TypeInt,
@@ -113,14 +112,37 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Configuration from OPNsense: \n")
 	log.Printf("[DEBUG] %#v \n", client)
 
-	d.Set("enabled", client.Enabled)
-	d.Set("name", client.Name)
-	d.Set("public_key", client.PubKey)
-	d.Set("shared_key", client.Psk)
-	d.Set("endpoint_address", client.ServerAddress)
+	err = d.Set("enabled", client.Enabled)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("name", client.Name)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("public_key", client.PubKey)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("shared_key", client.Psk)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("endpoint_address", client.ServerAddress)
+	if err != nil {
+		return err
+	}
 
 	tunnelAddressList := opnsense.ListSelectedValues(client.TunnelAddress)
-	d.Set("tunnel_address", tunnelAddressList)
+
+	err = d.Set("tunnel_address", tunnelAddressList)
+	if err != nil {
+		return err
+	}
 
 	if client.ServerPort != "" {
 		serverPort, err := strconv.Atoi(client.ServerPort)
@@ -130,7 +152,10 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 			return err
 		}
 
-		d.Set("endpoint_port", serverPort)
+		err = d.Set("endpoint_port", serverPort)
+		if err != nil {
+			return err
+		}
 	}
 
 	keepAlive, err := strconv.Atoi(client.KeepAlive)
@@ -140,7 +165,10 @@ func resourceWireGuardClientRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	d.Set("keep_alive", keepAlive)
+	err = d.Set("keep_alive", keepAlive)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

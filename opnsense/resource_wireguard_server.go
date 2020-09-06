@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
 	uuid "github.com/satori/go.uuid"
 )
@@ -20,7 +20,7 @@ func resourceWireGuardServer() *schema.Resource {
 		Delete: resourceWireGuardServerDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -70,7 +70,7 @@ func resourceWireGuardServer() *schema.Resource {
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					Description:  "Tunnel address for the server, e.g. 10.0.0.1/32",
-					ValidateFunc: validation.CIDRNetwork(0, 32),
+					ValidateFunc: validation.IsCIDRNetwork(0, 32),
 				},
 			},
 			"dns": {
@@ -78,9 +78,8 @@ func resourceWireGuardServer() *schema.Resource {
 				Required:    true,
 				Description: "List of DNS addresses",
 				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					Description:  "DNS address, e.g. 10.0.0.1",
-					ValidateFunc: validation.SingleIP(),
+					Type:        schema.TypeString,
+					Description: "DNS address, e.g. 10.0.0.1",
 				},
 			},
 			"peers": {
@@ -90,7 +89,7 @@ func resourceWireGuardServer() *schema.Resource {
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					Description:  "UUIDs for clients",
-					ValidateFunc: ValidateUUID(),
+					ValidateFunc: validation.IsUUID,
 				},
 			},
 		},
@@ -123,11 +122,30 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Configuration from OPNsense: \n")
 	log.Printf("[DEBUG] %#v \n", server)
 
-	d.Set("enabled", server.Enabled)
-	d.Set("name", server.Name)
-	d.Set("public_key", server.PubKey)
-	d.Set("private_key", server.PrivKey)
-	d.Set("disable_routes", server.DisableRoutes)
+	err = d.Set("enabled", server.Enabled)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("name", server.Name)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("public_key", server.PubKey)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("private_key", server.PrivKey)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("disable_routes", server.DisableRoutes)
+	if err != nil {
+		return err
+	}
 
 	port, err := strconv.Atoi(server.Port)
 	if err != nil {
@@ -136,7 +154,10 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	d.Set("port", port)
+	err = d.Set("port", port)
+	if err != nil {
+		return err
+	}
 
 	if server.MTU != "" {
 		mtu, err := strconv.Atoi(server.MTU)
@@ -146,24 +167,39 @@ func resourceWireGuardServerRead(d *schema.ResourceData, meta interface{}) error
 			return err
 		}
 
-		d.Set("mtu", mtu)
+		err = d.Set("mtu", mtu)
+		if err != nil {
+			return err
+		}
 	}
 
 	// TODO: Handle this map[string]interface
 	// d.Set("tunnel_address", server.TunnelAddress)
 	if server.TunnelAddress != nil {
 		tunnelAddressList := opnsense.ListSelectedValues(server.TunnelAddress)
-		d.Set("tunnel_address", tunnelAddressList)
+
+		err = d.Set("tunnel_address", tunnelAddressList)
+		if err != nil {
+			return err
+		}
 	}
 
 	if server.DNS != nil {
 		dnsAddressList := opnsense.ListSelectedValues(server.DNS)
-		d.Set("dns", dnsAddressList)
+
+		err = d.Set("dns", dnsAddressList)
+		if err != nil {
+			return err
+		}
 	}
 
 	if server.Peers != nil {
 		peerList := opnsense.ListSelectedKeys(server.Peers)
-		d.Set("peers", peerList)
+
+		err = d.Set("peers", peerList)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

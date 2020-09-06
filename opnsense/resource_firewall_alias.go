@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/kradalby/opnsense-go/opnsense"
 	uuid "github.com/satori/go.uuid"
 )
@@ -19,7 +19,7 @@ func resourceFirewallAlias() *schema.Resource {
 		Delete: resourceFirewallAliasDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -102,11 +102,31 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] %#v \n", alias)
 
 	d.SetId(alias.UUID.String())
-	d.Set("enabled", alias.Enabled)
-	d.Set("name", alias.Name)
-	d.Set("type", alias.Type)
-	d.Set("description", alias.Description)
-	d.Set("content", alias.Content)
+
+	err = d.Set("enabled", alias.Enabled)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("name", alias.Name)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("type", alias.Type)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("description", alias.Description)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("content", alias.Content)
+	if err != nil {
+		return err
+	}
 
 	parents := []string{}
 
@@ -124,7 +144,10 @@ func resourceFirewallAliasRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.Set("parent", parents)
+	err = d.Set("parent", parents)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
