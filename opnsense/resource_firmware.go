@@ -143,10 +143,21 @@ func resourceFirmwareRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
+	d.SetId("firmware")
+
 	return diags
 }
 
 func resourceFirmwareCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*opnsense.Client)
+
+	added := d.Get("plugin").(*schema.Set)
+
+	diags := installPlugins(ctx, d, c, added)
+	if diags.HasError() {
+		return diags
+	}
+
 	return resourceFirmwareRead(ctx, d, meta)
 }
 
@@ -158,54 +169,17 @@ func resourceFirmwareUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		old := oldRaw.(*schema.Set)
 		new := newRaw.(*schema.Set)
 
-		removed := old.Difference(new)
 		added := new.Difference(old)
+		removed := old.Difference(new)
 
-		fmt.Println("[DEBUG] Added:", added)
-		fmt.Println("[DEBUG] Removed:", removed)
-
-		for _, plug := range added.List() {
-			plugin := plug.(map[string]interface{})
-
-			name := plugin["name"].(string)
-
-			resp, err := c.PackageInstall(name)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			if resp.Status != "ok" {
-				return diag.FromErr(fmt.Errorf("status: %s, err: %w", resp.Status, ErrStatusNotOk))
-			}
-
-			upgradeChecker := statusStateConf(d, c)
-
-			_, err = upgradeChecker.WaitForStateContext(ctx)
-			if err != nil {
-				return diag.FromErr(err)
-			}
+		diags := installPlugins(ctx, d, c, added)
+		if diags.HasError() {
+			return diags
 		}
 
-		for _, plug := range removed.List() {
-			plugin := plug.(map[string]interface{})
-
-			name := plugin["name"].(string)
-
-			resp, err := c.PackageRemove(name)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			if resp.Status != "ok" {
-				return diag.FromErr(fmt.Errorf("status: %s, err: %w", resp.Status, ErrStatusNotOk))
-			}
-
-			upgradeChecker := statusStateConf(d, c)
-
-			_, err = upgradeChecker.WaitForStateContext(ctx)
-			if err != nil {
-				return diag.FromErr(err)
-			}
+		diags = removePlugins(ctx, d, c, removed)
+		if diags.HasError() {
+			return diags
 		}
 	}
 
@@ -213,8 +187,16 @@ func resourceFirmwareUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceFirmwareDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
+	c := meta.(*opnsense.Client)
 
+	removed := d.Get("plugin").(*schema.Set)
+
+	diags := removePlugins(ctx, d, c, removed)
+	if diags.HasError() {
+		return diags
+	}
+
+	resourceFirmwareRead(ctx, d, meta)
 	d.SetId("")
 
 	return diags
@@ -244,4 +226,58 @@ func statusStateConf(d *schema.ResourceData, client *opnsense.Client) *resource.
 	}
 
 	return createStateConf
+}
+
+func installPlugins(ctx context.Context,
+	d *schema.ResourceData,
+	c *opnsense.Client,
+	added *schema.Set) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	for _, plug := range added.List() {
+		plugin := plug.(map[string]interface{})
+
+		name := plugin["name"].(string)
+
+		err := c.PackageInstall(name)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		upgradeChecker := statusStateConf(d, c)
+
+		_, err = upgradeChecker.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return diags
+}
+
+func removePlugins(ctx context.Context,
+	d *schema.ResourceData,
+	c *opnsense.Client,
+	removed *schema.Set) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	for _, plug := range removed.List() {
+		plugin := plug.(map[string]interface{})
+
+		name := plugin["name"].(string)
+
+		err := c.PackageRemove(name)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		upgradeChecker := statusStateConf(d, c)
+
+		_, err = upgradeChecker.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return diags
 }
