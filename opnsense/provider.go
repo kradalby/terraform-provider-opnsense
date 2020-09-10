@@ -2,6 +2,8 @@ package opnsense
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -68,6 +70,24 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	c, err := opnsense.NewClient(url, key, secret, skipTLS)
 	if err != nil {
 		log.Printf("[ERROR] Could not create OPNsense client: %#v\n", err)
+
+		return nil, diag.FromErr(err)
+	}
+
+	_, err = c.GetFirmwareConfig()
+	if err != nil {
+		if errors.Is(err, opnsense.ErrOpnsense401) {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Authentication with OPNsense failed",
+				Detail: fmt.Sprintf(
+					"When attempting to authenticate with OPNsense server %s, a 401 Authentication error was returned",
+					url,
+				),
+			})
+
+			return nil, diags
+		}
 
 		return nil, diag.FromErr(err)
 	}
