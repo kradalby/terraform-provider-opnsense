@@ -99,47 +99,23 @@ func resourceFirmwareRead(ctx context.Context, d *schema.ResourceData, meta inte
 
 	log.Printf("[TRACE] Converting ID to UUID")
 
-	info, err := c.GetInformation()
+	installedPlugins, err := c.FirmwareInstalledPluginsList()
 	if err != nil {
-		if err.Error() == "found empty array, most likely 404" {
-			d.SetId("")
-
-			return diags
-		}
-
 		log.Printf("[DEBUG]: \n%#v", err)
 		log.Println("[ERROR] Failed to fetch information")
 
 		return diag.FromErr(err)
 	}
 
-	pluginsInOpnsense := make([]map[string]interface{}, 0)
-	// pluginsInTerraform := make(map[string]bool)
+	installedPluginMaps := make([]map[string]interface{}, len(installedPlugins))
 
-	for _, plugin := range info.Plugin {
-		if bool(plugin.Installed) {
-			pluginsInOpnsense = append(pluginsInOpnsense,
-				map[string]interface{}{
-					"name":       plugin.Name,
-					"version":    plugin.Version,
-					"comment":    plugin.Comment,
-					"flatsize":   plugin.Flatsize,
-					"locked":     plugin.Locked,
-					"license":    plugin.License,
-					"repository": plugin.Repository,
-					"origin":     plugin.Origin,
-					"provided":   plugin.Provided,
-					"installed":  plugin.Installed,
-					"path":       plugin.Path,
-					"configured": plugin.Configured,
-				},
-			)
-		}
+	for index, plugin := range installedPlugins {
+		installedPluginMaps[index] = opnsense.StructToMap(plugin)
 	}
 
-	fmt.Println("[DEBUG]", pluginsInOpnsense)
+	fmt.Println("[DEBUG]", installedPlugins)
 
-	if err := d.Set("plugin", pluginsInOpnsense); err != nil {
+	if err := d.Set("plugin", installedPluginMaps); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -211,7 +187,7 @@ func statusStateConf(d *schema.ResourceData, client *opnsense.Client) *resource.
 			opnsense.StatusDone,
 		},
 		Refresh: func() (interface{}, string, error) {
-			resp, err := client.GetUpgradeStatus()
+			resp, err := client.FirmwareUpgradeStatus()
 			if err != nil {
 				return 0, "", err
 			}
@@ -239,7 +215,7 @@ func installPlugins(ctx context.Context,
 
 		name := plugin["name"].(string)
 
-		err := c.PackageInstall(name)
+		err := c.FirmwareInstall(name)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -266,7 +242,7 @@ func removePlugins(ctx context.Context,
 
 		name := plugin["name"].(string)
 
-		err := c.PackageRemove(name)
+		err := c.FirmwareRemove(name)
 		if err != nil {
 			return diag.FromErr(err)
 		}

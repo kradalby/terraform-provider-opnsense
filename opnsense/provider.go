@@ -74,7 +74,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		return nil, diag.FromErr(err)
 	}
 
-	_, err = c.GetFirmwareConfig()
+	_, err = c.FirmwareConfigGet()
 	if err != nil {
 		if errors.Is(err, opnsense.ErrOpnsense401) {
 			diags = append(diags, diag.Diagnostic{
