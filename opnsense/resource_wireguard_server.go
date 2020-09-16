@@ -287,11 +287,11 @@ func resourceWireGuardServerDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func prepareServerConfiguration(d *schema.ResourceData, server *opnsense.WireGuardServerSet) error {
-	server.Enabled = d.Get("enabled").(opnsense.Bool)
+	server.Enabled = opnsense.Bool(d.Get("enabled").(bool))
 	server.Name = d.Get("name").(string)
 	server.PubKey = d.Get("public_key").(string)
 	server.PrivKey = d.Get("private_key").(string)
-	server.DisableRoutes = d.Get("disable_routes").(opnsense.Bool)
+	server.DisableRoutes = opnsense.Bool(d.Get("disable_routes").(bool))
 
 	server.Port = strconv.Itoa(d.Get("port").(int))
 

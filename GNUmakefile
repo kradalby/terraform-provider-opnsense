@@ -26,7 +26,8 @@ vet:
 	fi
 
 fmt:
-	gofmt -w $(GOFMT_FILES)
+	prettier --write "**/*.{ts,js,md,yaml,yml,sass,css,scss}"
+	golangci-lint run --fix
 
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
@@ -57,4 +58,3 @@ endif
 	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider-test PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
 .PHONY: build test testacc vet fmt fmtcheck errcheck test-compile website website-test
-

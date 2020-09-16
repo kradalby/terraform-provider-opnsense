@@ -17,7 +17,7 @@
       },
       {
          "commands": [
-            "golangci-lint run -v --timeout 10m --tests=false"
+            "golangci-lint run -v --timeout 10m"
          ],
          "image": "golangci/golangci-lint:latest",
          "name": "Go lint",

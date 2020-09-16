@@ -41,11 +41,12 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"opnsense_wireguard_client":    resourceWireGuardClient(),
-			"opnsense_wireguard_server":    resourceWireGuardServer(),
-			"opnsense_firewall_alias":      resourceFirewallAlias(),
-			"opnsense_firewall_alias_util": resourceFirewallAliasUtil(),
-			"opnsense_firmware":            resourceFirmware(),
+			"opnsense_wireguard_client":     resourceWireGuardClient(),
+			"opnsense_wireguard_server":     resourceWireGuardServer(),
+			"opnsense_firewall_filter_rule": resourceFirewallFilterRule(),
+			"opnsense_firewall_alias":       resourceFirewallAlias(),
+			"opnsense_firewall_alias_util":  resourceFirewallAliasUtil(),
+			"opnsense_firmware":             resourceFirmware(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{

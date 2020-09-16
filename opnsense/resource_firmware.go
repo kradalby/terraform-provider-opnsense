@@ -2,7 +2,6 @@ package opnsense
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -32,7 +31,7 @@ func resourceFirmware() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
-				Description: "A specification for a virtual disk device on this virtual machine.",
+				Description: "A plugin installed to OPNsense",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -97,8 +96,6 @@ func resourceFirmwareRead(ctx context.Context, d *schema.ResourceData, meta inte
 
 	c := meta.(*opnsense.Client)
 
-	log.Printf("[TRACE] Converting ID to UUID")
-
 	installedPlugins, err := c.FirmwareInstalledPluginsList()
 	if err != nil {
 		log.Printf("[DEBUG]: \n%#v", err)
@@ -112,8 +109,6 @@ func resourceFirmwareRead(ctx context.Context, d *schema.ResourceData, meta inte
 	for index, plugin := range installedPlugins {
 		installedPluginMaps[index] = opnsense.StructToMap(plugin)
 	}
-
-	fmt.Println("[DEBUG]", installedPlugins)
 
 	if err := d.Set("plugin", installedPluginMaps); err != nil {
 		return diag.FromErr(err)
