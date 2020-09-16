@@ -29,7 +29,6 @@ resource "opnsense_firmware" "%s" {
   }
 }
 `, strings.Join(plugins, `", "`), name)
-
 }
 
 func testAccFirmwarePluginResourceDestroy(s *terraform.State) error {

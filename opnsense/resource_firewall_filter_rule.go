@@ -147,7 +147,6 @@ func resourceFirewallFilterRuleRead(ctx context.Context, d *schema.ResourceData,
 		})
 
 		return diags
-
 	}
 
 	ruleMap := opnsense.StructToMap(rule)
