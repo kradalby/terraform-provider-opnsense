@@ -1,9 +1,19 @@
 ---
 {
+   "dns_config": {
+      "nameservers": [
+         "1.1.1.1",
+         "1.0.0.1"
+      ]
+   },
    "kind": "pipeline",
    "name": "Kubernetes",
    "node_selector": {
       "drone": true
+   },
+   "platform": {
+      "arch": "amd64",
+      "os": "linux"
    },
    "steps": [
       {
@@ -11,15 +21,16 @@
             "npm install prettier",
             "npx prettier --check \"**/*.{ts,js,md,yaml,yml,sass,css,scss}\""
          ],
-         "image": "node:lts",
+         "image": "node:lts-buster",
          "name": "Prettier lint",
          "pull": "always"
       },
       {
          "commands": [
+            "curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin",
             "golangci-lint run -v --timeout 10m"
          ],
-         "image": "golangci/golangci-lint:latest",
+         "image": "golang:1.15-buster",
          "name": "Go lint",
          "pull": "always"
       },
@@ -27,16 +38,16 @@
          "commands": [
             "go test ./..."
          ],
-         "image": "golang:1.14.4-stretch",
+         "image": "golang:1.15-buster",
          "name": "Go test",
          "pull": "always"
       },
       {
          "commands": [
             "go get github.com/mitchellh/gox",
-            "gox -output=\"dist/{{.Dir}}_{{.OS}}_{{.Arch}}\""
+            "gox -osarch \"!darwin/386\" -output=\"dist/{{.Dir}}_{{.OS}}_{{.Arch}}\""
          ],
-         "image": "golang:1.14.4-stretch",
+         "image": "golang:1.15-buster",
          "name": "Go build",
          "pull": "always"
       },
