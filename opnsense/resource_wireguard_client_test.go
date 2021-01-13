@@ -12,12 +12,12 @@ import (
 
 func testWireguardClientResource(name string) string {
 	return fmt.Sprintf(`
-resource "opnsense_firmware" "%s" {
-    plugin {
-      name      = "os-wireguard"
-      installed = true
-    }
-}
+// resource "opnsense_firmware" "%s" {
+//     plugin {
+//       name      = "os-wireguard"
+//       installed = true
+//     }
+// }
 
 resource "opnsense_wireguard_client" "%s" {
   enabled  = true
@@ -47,6 +47,11 @@ func testAccWireguardClientResourceDestroy(s *terraform.State) error {
 }
 
 func TestWireguardClient_basic(t *testing.T) {
+	err := setupPlugins([]string{"os-wireguard"})
+	if err != nil {
+		t.Errorf("Setup failed, manual cleanup steps might be needed: %s", err)
+	}
+
 	rName := fmt.Sprintf("a%s", acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
 
 	resource.Test(t, resource.TestCase{
@@ -57,11 +62,11 @@ func TestWireguardClient_basic(t *testing.T) {
 			{
 				Config: testWireguardClientResource(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						fmt.Sprintf("opnsense_firmware.%s", rName),
-						"plugin.#",
-						"1",
-					),
+					// resource.TestCheckResourceAttr(
+					// 	fmt.Sprintf("opnsense_firmware.%s", rName),
+					// 	"plugin.#",
+					// 	"1",
+					// ),
 					resource.TestCheckResourceAttr(
 						fmt.Sprintf("opnsense_wireguard_client.%s", rName),
 						"name",
@@ -71,4 +76,9 @@ func TestWireguardClient_basic(t *testing.T) {
 			},
 		},
 	})
+
+	err = tearDownPlugins([]string{"os-wireguard"})
+	if err != nil {
+		t.Errorf("Setup failed, manual cleanup steps might be needed: %s", err)
+	}
 }

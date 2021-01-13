@@ -2,6 +2,7 @@ package opnsense
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -107,8 +108,11 @@ func resourceFirmwareRead(ctx context.Context, d *schema.ResourceData, meta inte
 	installedPluginMaps := make([]map[string]interface{}, len(installedPlugins))
 
 	for index, plugin := range installedPlugins {
-		installedPluginMaps[index] = opnsense.StructToMap(plugin)
+		m := opnsense.StructToMap(plugin)
+		installedPluginMaps[index] = m
 	}
+
+	fmt.Printf("Plugins: %#v", installedPluginMaps)
 
 	if err := d.Set("plugin", installedPluginMaps); err != nil {
 		return diag.FromErr(err)

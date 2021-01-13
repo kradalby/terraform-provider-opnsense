@@ -1,6 +1,7 @@
 package opnsense
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -183,6 +184,7 @@ func resourceWireGuardClientCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	fmt.Println(client)
 	uuid, err := c.WireGuardClientAdd(client)
 	if err != nil {
 		return err

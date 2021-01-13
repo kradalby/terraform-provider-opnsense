@@ -172,7 +172,9 @@ func resourceFirewallFilterRuleCreate(ctx context.Context, d *schema.ResourceDat
 		ruleMap[field] = d.Get(field)
 	}
 
-	err := mapstructure.Decode(ruleMap, &rule)
+	fmt.Printf("Map: %#v\n", ruleMap)
+
+	err := opnsense.MapToStruct(ruleMap, &rule)
 	if err != nil {
 		return diag.FromErr(err)
 	}

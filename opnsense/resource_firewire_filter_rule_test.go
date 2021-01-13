@@ -12,13 +12,6 @@ import (
 
 func testFirewallFilterRuleResource(name string) string {
 	return fmt.Sprintf(`
-resource "opnsense_firmware" "%s" {
-    plugin {
-      name      = "os-firewall"
-      installed = true
-    }
-}
-
 resource "opnsense_firewall_filter_rule" "%s" {
 	enabled = true
 	action = "pass"
@@ -29,7 +22,7 @@ resource "opnsense_firewall_filter_rule" "%s" {
 	destination_net = "192.168.0.0/24"
 	destination_port = 8000
 }
-`, name, name)
+`, name)
 }
 
 func testAccFirewallFilterRuleResourceDestroy(s *terraform.State) error {
@@ -48,6 +41,11 @@ func testAccFirewallFilterRuleResourceDestroy(s *terraform.State) error {
 }
 
 func TestFirewallFilterRule_basic(t *testing.T) {
+	err := setupPlugins([]string{"os-firewall"})
+	if err != nil {
+		t.Errorf("Setup failed, manual cleanup steps might be needed: %s", err)
+	}
+
 	rName := fmt.Sprintf("a%s", acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
 
 	resource.Test(t, resource.TestCase{
@@ -59,11 +57,6 @@ func TestFirewallFilterRule_basic(t *testing.T) {
 				Config: testFirewallFilterRuleResource(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						fmt.Sprintf("opnsense_firmware.%s", rName),
-						"plugin.#",
-						"1",
-					),
-					resource.TestCheckResourceAttr(
 						fmt.Sprintf("opnsense_firewall_filter_rule.%s", rName),
 						"action",
 						"pass",
@@ -72,4 +65,9 @@ func TestFirewallFilterRule_basic(t *testing.T) {
 			},
 		},
 	})
+
+	err = tearDownPlugins([]string{"os-firewall"})
+	if err != nil {
+		t.Errorf("Setup failed, manual cleanup steps might be needed: %s", err)
+	}
 }
