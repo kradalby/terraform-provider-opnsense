@@ -5,7 +5,7 @@ go 1.15
 // replace github.com/kradalby/opnsense-go => ../opnsense-go
 
 require (
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.1
 	github.com/kradalby/opnsense-go v0.0.0-20200916130135-67bf4464de4c
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/rogpeppe/go-internal v1.6.2 // indirect
