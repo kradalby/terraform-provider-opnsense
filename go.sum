@@ -236,6 +236,8 @@ github.com/kradalby/opnsense-go v0.0.0-20200916123608-6df8ebb1a878 h1:CmoW7oCkAG
 github.com/kradalby/opnsense-go v0.0.0-20200916123608-6df8ebb1a878/go.mod h1:V1rKHz6Faa/T7TV6mXSpixcKJJNJWYGo3jG2DvmNezM=
 github.com/kradalby/opnsense-go v0.0.0-20200916130135-67bf4464de4c h1:gp/TOt53FKlwhsQ6Avy5HqYZ0h+iItdkPeR4/tWNWIQ=
 github.com/kradalby/opnsense-go v0.0.0-20200916130135-67bf4464de4c/go.mod h1:nOA+QAdEKT3cCfVFonP7GRqY4+rH/CReEObl3rilQmk=
+github.com/kradalby/opnsense-go v0.0.0-20210123082920-7015c8e12160 h1:fqQ/XR09STCUnU1vxFEI09+79jfcagYURE6m9A8ChHU=
+github.com/kradalby/opnsense-go v0.0.0-20210123082920-7015c8e12160/go.mod h1:neCt2sy0utNxKFEATECUk1g8cA9pl2p2ObxTIXzsfJY=
 github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348/go.mod h1:B69LEHPfb2qLo0BaaOLcbitczOKLWTsrBG9LczfCD4k=
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
@@ -296,6 +298,7 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/ulikunitz/xz v0.5.5/go.mod h1:2bypXElzHzzJZwzH67Y6wb67pO62Rzfn7BSiF4ABRW8=
 github.com/ulikunitz/xz v0.5.7 h1:YvTNdFzX6+W5m9msiYg/zpkSURPPtOlzbqYjrFn7Yt4=
 github.com/ulikunitz/xz v0.5.7/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
