@@ -1,1 +1,7 @@
+.build/
 .drone.yml
+.pre-commit-config.yaml
+dist/
+helm/
+templates/
+
