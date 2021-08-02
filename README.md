@@ -1,5 +1,16 @@
 # Terraform Provider
 
+---
+
+This project is currently unmaintained, I do not have any time for it at the moment.
+There is a lot of potential, but it would require a code generator to make code based
+on the API docs.
+
+If you would be interested in sponsoring the continuation of this project, please
+reach out to me.
+
+---
+
 - Website: https://www.terraform.io
 - [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
 - Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)

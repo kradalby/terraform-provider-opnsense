@@ -1,132 +1,64 @@
 ---
 {
-   "dns_config": {
-      "nameservers": [
-         "1.1.1.1",
-         "1.0.0.1"
-      ]
-   },
-   "kind": "pipeline",
-   "name": "Kubernetes",
-   "node_selector": {
-      "drone": true
-   },
-   "platform": {
-      "arch": "amd64",
-      "os": "linux"
-   },
-   "steps": [
+  "kind": "pipeline",
+  "name": "Kubernetes",
+  "node_selector": { "drone": true },
+  "platform": { "arch": "amd64", "os": "linux" },
+  "steps":
+    [
       {
-         "commands": [
+        "commands":
+          [
             "npm install prettier",
-            "npx prettier --check \"**/*.{ts,js,md,yaml,yml,sass,css,scss}\""
-         ],
-         "image": "node:lts-buster",
-         "name": "Prettier lint",
-         "pull": "always"
+            "echo .pre-commit-config.yaml >> .prettierignore",
+            'npx prettier --check "**/*.{ts,js,md,yaml,yml,sass,css,scss,html,htm}"',
+          ],
+        "image": "node:lts-buster",
+        "name": "Prettier lint",
+        "pull": "always",
       },
       {
-         "commands": [
+        "commands":
+          [
             "curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin",
-            "golangci-lint run -v --timeout 10m"
-         ],
-         "image": "golang:1.15-buster",
-         "name": "Go lint",
-         "pull": "always"
+            "golangci-lint run -v --timeout 10m",
+          ],
+        "image": "golang:1.16-buster",
+        "name": "Go lint",
+        "pull": "always",
       },
       {
-         "commands": [
-            "go test ./..."
-         ],
-         "image": "golang:1.15-buster",
-         "name": "Go test",
-         "pull": "always"
+        "commands": ["go test ./..."],
+        "image": "golang:1.16-buster",
+        "name": "Go test",
+        "pull": "always",
       },
       {
-         "commands": [
+        "commands":
+          [
             "go get github.com/mitchellh/gox",
-            "gox -osarch \"!darwin/386\" -output=\"dist/{{.Dir}}_{{.OS}}_{{.Arch}}\""
-         ],
-         "image": "golang:1.15-buster",
-         "name": "Go build",
-         "pull": "always"
+            'gox -osarch "!darwin/386" -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"',
+          ],
+        "image": "golang:1.16-buster",
+        "name": "Go build",
+        "pull": "always",
       },
       {
-         "environment": {
-            "SSH_KEY": {
-               "from_secret": "ssh_key"
-            }
-         },
-         "image": "appleboy/drone-scp",
-         "name": "Deploy to builds",
-         "pull": "always",
-         "settings": {
-            "host": "storage.terra.fap.no",
+        "environment": { "SSH_KEY": { "from_secret": "ssh_key" } },
+        "image": "appleboy/drone-scp",
+        "name": "Deploy with scp",
+        "pull": "always",
+        "settings":
+          {
+            "host": "core.terra.fap.no",
             "rm": true,
-            "source": [
-               "dist/*"
-            ],
+            "source": ["dist/*"],
             "strip_components": 1,
-            "target": "/storage/serve/builds/terraform-provider-opnsense",
-            "username": "deploy"
-         },
-         "when": {
-            "branch": [
-               "master"
-            ],
-            "event": [
-               "push"
-            ]
-         }
+            "target": "/fastest/serve/builds/terraform-provider-opnsense",
+            "username": "deploy",
+          },
+        "when": { "branch": ["master", "main"], "event": ["push"] },
       },
-      {
-         "image": "appleboy/drone-discord",
-         "name": "Notify Discord",
-         "pull": "always",
-         "settings": {
-            "message": "{{#success build.status}}\n✅  Build #{{build.number}} of `{{repo.name}}` succeeded.\n\n📝  Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐  {{ build.link }}\n\n✅  duration: {{duration build.started build.finished}}\n✅  started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}}\n✅  finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}\n\n{{else}}\n@everyone\n❌  Build #{{build.number}} of `{{repo.name}}` failed.\n\n📝  Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐  {{ build.link }}\n\n✅  duration: {{duration build.started build.finished}}\n✅  started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}}\n✅  finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}\n\n{{/success}}\n",
-            "webhook_id": {
-               "from_secret": "discord_webhook_id"
-            },
-            "webhook_token": {
-               "from_secret": "discord_webhook_token"
-            }
-         },
-         "when": {
-            "status": [
-               "success",
-               "failure"
-            ]
-         }
-      }
-   ],
-   "type": "kubernetes"
+    ],
+  "type": "kubernetes",
 }
----
-{
-   "get": {
-      "name": "id",
-      "path": "discord-build"
-   },
-   "kind": "secret",
-   "name": "discord_webhook_id"
-}
----
-{
-   "get": {
-      "name": "token",
-      "path": "discord-build"
-   },
-   "kind": "secret",
-   "name": "discord_webhook_token"
-}
----
-{
-   "get": {
-      "name": "deploy",
-      "path": "ssh"
-   },
-   "kind": "secret",
-   "name": "ssh_key"
-}
-...
