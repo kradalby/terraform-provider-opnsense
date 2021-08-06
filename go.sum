@@ -302,6 +302,8 @@ github.com/kradalby/opnsense-go v0.0.0-20210123082920-7015c8e12160 h1:fqQ/XR09ST
 github.com/kradalby/opnsense-go v0.0.0-20210123082920-7015c8e12160/go.mod h1:neCt2sy0utNxKFEATECUk1g8cA9pl2p2ObxTIXzsfJY=
 github.com/kradalby/opnsense-go v0.0.0-20210528195939-75c226e47325 h1:8xkTh89Kj0ihGIeSL2LkYdps7swtdat/N9bA8R3e6mg=
 github.com/kradalby/opnsense-go v0.0.0-20210528195939-75c226e47325/go.mod h1:neCt2sy0utNxKFEATECUk1g8cA9pl2p2ObxTIXzsfJY=
+github.com/kradalby/opnsense-go v0.0.0-20210802162605-47fb9b5e0bbb h1:zG77k0oETIiJnB+of9IKQJRfv6g7ediEM+YRigLbHV4=
+github.com/kradalby/opnsense-go v0.0.0-20210802162605-47fb9b5e0bbb/go.mod h1:neCt2sy0utNxKFEATECUk1g8cA9pl2p2ObxTIXzsfJY=
 github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348/go.mod h1:B69LEHPfb2qLo0BaaOLcbitczOKLWTsrBG9LczfCD4k=
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/matryer/is v1.2.0/go.mod h1:2fLPjFQM9rhQ15aVEtbuwhJinnOqrmgXPNdZsdwlWXA=
